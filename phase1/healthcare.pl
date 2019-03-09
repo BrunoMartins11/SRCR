@@ -55,9 +55,9 @@ add_utente(Id, Nome, Idade, Cidade) :-
 remove_utente(Id) :- retract(utente(Id, _, _, _)).
 
 % Extensao do predicado instituicoes: R -> {V,F}
-instituicoes(R):-
-                solucoes(I, servico(_, _, I, _), L),
-                unicos(L, R).
+instituicoes(R) :-
+                 solucoes(I, servico(_, _, I, _), L),
+                 unicos(L, R).
 
 % Extensao do predicado instituicoes_cidade: Cidade, R -> {V,F}
 instituicoes_cidade(Cidade, R) :-
