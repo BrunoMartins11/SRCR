@@ -90,6 +90,6 @@ instituicoes(R):-
 
 % Extensao do predicado instituicoes_cidade: Cidade, R -> {V,F}
 instituicoes_cidade(Cidade, R) :-
-                           solucoes((I, Cidade), servico(_, _, I, Cidade), L0),
-                           unicos(L0, L),
-                           lista_pares_fst(L, R).
+                                solucoes((I, Cidade), servico(_, _, I, Cidade), L0),
+                                unicos(L0, L),
+                                lista_pares_fst(L, R).
