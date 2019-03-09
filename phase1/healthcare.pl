@@ -70,3 +70,6 @@ instituicoes_servico(Servico, R) :-
                                   solucoes((I, Servico), servico(_, Servico, I, _), L0),
                                   unicos(L0, L),
                                   lista_pares_fst(L, R).
+
+% Extensao do predicado instituicoes_id: Id, R -> {V,F}
+instituicoes_id(Id, R) :- solucoes((I, Id), servico(Id, _, I, _), [(R, _)]).
