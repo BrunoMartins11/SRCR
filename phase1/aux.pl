@@ -19,8 +19,8 @@ construir(S,S).
 % Extensao do predicado pertence: Elemento, Lista: -> {V,F}
 pertence(H, [H | _]).
 pertence(X, [H | T]) :-
-                   X \= H,
-                   pertence(X, T).
+                      X \= H,
+                      pertence(X, T).
 
 % Extensao do predicado unicos: L1, L2 -> {V,F}
 unicos([], []).
