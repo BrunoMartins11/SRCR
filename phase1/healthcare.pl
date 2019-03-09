@@ -27,7 +27,10 @@ utente( 4, 'Maria',    73, 'Avenida Camoes').
 
 % Registo de utentes
 
-add_utente(Id, Nome, Idade, Cidade) :-  nao(utente(Id, _, _ ,_)), Idade >= 0, Id >= 0,
-                                        assert(utente(Id, Nome, Idade, Cidade)).
+add_utente(Id, Nome, Idade, Cidade) :-
+                                     nao(utente(Id, _, _ ,_)),
+                                     Idade >= 0,
+                                     Id >= 0,
+                                     assert(utente(Id, Nome, Idade, Cidade)).
 
 remove_utente(Id) :- retract(utente(Id, _, _, _)).
