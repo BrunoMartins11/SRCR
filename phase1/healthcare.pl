@@ -1,5 +1,5 @@
 % Modulo auxiliar
-:- use_module(aux).
+:- consult('aux.pl').
 
 % Definições iniciais
 :- dynamic utente/4.
