@@ -86,8 +86,3 @@ servicos_cidade(Cidade, R) :-
                             unicos(L0, L),
                             lista_pares_fst(L, R).
 
-% Extensao do predicado servicos_cidade: Data, R -> {V,F}
-servicos_cidade(Cidade, R) :-
-                            solucoes((S, Cidade), servico( _, S, _, Cidade), L0),
-                            unicos(L0, L),
-                            lista_pares_fst(L, R).
