@@ -40,6 +40,16 @@ servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
 
 
 
+% Extensao do predicado consulta: -> Data, IdUt, IdServ, Custo {V,F}
+consulta(data(1,1,2019),0,2,50).
+consulta(data(1,2,2019),1,1,100).
+consulta(data(1,3,2019),2,0,30).
+consulta(data(1,4,2019),3,6,150).
+consulta(data(9,12,2019),6,9,10).
+consulta(data(27,11,2020),3,9,200).
+consulta(data(10,5,2020),6,14,50).
+
+
 %--------------------------------------------------------
 %----------------- Predicados ---------------------------
 %--------------------------------------------------------
@@ -86,3 +96,8 @@ servicos_cidade(Cidade, R) :-
                             unicos(L0, L),
                             lista_pares_fst(L, R).
 
+% Extensao do predicado identificar os utentes de um serviço/instituição
+utentes_servico_instituicao(Servico,Instit,U) :-
+    servico(ID,Servico,Instit,_), % Verificar se existe o servico
+    consulta(_,U,ID,_), % Verificar se existem consultas
+    utente(U,_,_,_). % Verificar se o utente
