@@ -86,3 +86,10 @@ servicos_cidade(Cidade, R) :-
                             unicos(L0, L),
                             lista_pares_fst(L, R).
 
+
+custo_utente(Id, X) :- solucoes( L, consulta(_, Id, _, L), C), list_sum(L, X).
+
+custo_servico(Id, X) :- solucoes( L, consulta(_, _, Id ,L), C), list_sum(L, X).
+
+custo_data(Data, X) :- solucoes( L, consulta(Data, _, _, L), C), list_sum(L, X).
+

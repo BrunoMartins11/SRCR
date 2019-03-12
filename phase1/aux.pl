@@ -35,4 +35,7 @@ lista_pares_fst([(A, _) | T], R) :-
                                   lista_pares_fst(T, L),
                                   append([A], L, R).
 
-
+list_sum( [],0 ).
+list_sum( [Head | Tail], T) :-
+                                list_sum(Tail, SUM),
+                                T is Head + SUM.
