@@ -39,6 +39,7 @@ servico(11,    'Cirurgia',           'Hospital de S.Joao',     'Porto').
 servico(12,   'Ortopedia',           'Hospital de S.Joao',     'Porto').
 servico(13,   'Pediatria',           'Hospital de S.Joao',     'Porto').
 servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
+servico(15, 'Pediatria', 'Hospital de Braga', 'Braga').
 
 
 % Extensao do predicado servico: Data, IdUt, IdServ, Custo -> {V,F}
