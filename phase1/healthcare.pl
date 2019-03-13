@@ -96,26 +96,14 @@ servicos_cidade(Cidade, R) :-
                             unicos(L0, L),
                             lista_pares_fst(L, R).
 
+
+
 % Extensao do predicado identificar os utentes de um serviço
-append([], List, List).
-append([Head|Tail], List, [Head|Rest]) :-
-    append(Tail, List, Rest).
-
-pmAux([],L0) :- unicos(L0,L).
-pmAux((H|T),L0) :-
-    solucoes((U,_), consulta(_,U,H,_), L),
-    unicos(L,L1),
-    lista_pares_fst(L1,L2),
-    append(L2,L0,L3),
-    pmAux(T, L3).
-    
-
-
 utentes_servico(Servico,R) :-
     solucoes((ID,Servico), servico(ID,Servico,_,_),R0),
     unicos(R0,R1),
     lista_pares_fst(R1,R2),
-    pmAux(R2,R).
+    ut_instit_aux(R2,R).
     
     %solucoes((U,_), consulta(_,U,R2,_), R3),
     %unicos(R3,R4),
@@ -123,7 +111,18 @@ utentes_servico(Servico,R) :-
 
 
 % Extensao do predicado identificar os utentes de um instituicao
-utentes_instituicao(Servico,U) :-
-    servico(ID,Servico,Instit,_), % Verificar se existe o servico
-    consulta(_,U,ID,_), % Verificar se existem consultas
-    utente(U,_,_,_). % Verificar se o utente
+ut_instit_aux([], L).
+ut_instit_aux((IdServ|T), L) :-
+    solucoes((U,IdServ), consulta(_,U,IdServ,_), R0),
+    unicos(R0,R1),
+    lista_pares_fst(R1,R2),
+    append(R2,R3,L0),
+    unicos(L0,L),
+    ut_instit_aux(T,R3).
+
+
+utentes_instituicao(Instit,R) :-
+    solucoes((ID,Instit), servico(ID,_,Instit,_), R0),
+    unicos(R0,R1),
+    lista_pares_fst(R1,R2),
+    ut_instit_aux(R2,R).

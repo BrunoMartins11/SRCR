@@ -35,4 +35,8 @@ lista_pares_fst([(A, _) | T], R) :-
                                   lista_pares_fst(T, L),
                                   append([A], L, R).
 
-
+% Extensao do predicado append: L1, L2, L3 -> {V,F}
+append([], List, List).
+append([Head|Tail], List, [Head|Rest]) :-
+append(Tail, List, Rest).
+                                
