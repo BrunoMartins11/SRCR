@@ -87,14 +87,14 @@ servicos_cidade(Cidade, R) :-
                             lista_pares_fst(L, R).
 
 % Extensao do predicado custo_utente: Id, X -> {V,F}
-custo_utente(Id, X) :- solucoes( L, cuidado(_, Id, _, L), C), list_sum(C, X).
+custo_utente(Id, X) :- solucoes( L, consulta(_, Id, _, L), C), list_sum(C, X).
 
 % Extensao do predicado custo_servico: Id, X -> {V,F}
-custo_servico(Id, X) :- solucoes( L, cuidado(_, _, Id ,L), C), list_sum(C, X).
+custo_servico(Id, X) :- solucoes( L, consulta(_, _, Id ,L), C), list_sum(C, X).
 
 % Extensao do predicado custo_data: Id, X -> {V,F}
-custo_data(Data, X) :- solucoes( L, cuidado(Data, _, _, L), C), list_sum(C, X).
+custo_data(Data, X) :- solucoes( L, consulta(Data, _, _, L), C), list_sum(C, X).
 
 % Extensao do predicado custo_instituicao: Id, X -> {V,F}
-custo_istituicao(Inst, X) :- solucoes(L, (cuidado(_, _, Id, L), servico(Id, _, Inst, _)), C),
+custo_instituicao(Inst, X) :- solucoes(L, (consulta(_, _, Id, L), servico(Id, _, Inst, _)), C),
                              list_sum(C,X).
