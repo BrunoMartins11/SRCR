@@ -3,6 +3,7 @@
 
 % Definições iniciais
 :- dynamic utente/4.
+:- dynamic cuidado/4.
 
 
 %--------------------------------------------------------
@@ -37,7 +38,6 @@ servico(11,    'Cirurgia',           'Hospital de S.Joao',     'Porto').
 servico(12,   'Ortopedia',           'Hospital de S.Joao',     'Porto').
 servico(13,   'Pediatria',           'Hospital de S.Joao',     'Porto').
 servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
-
 
 
 %--------------------------------------------------------
@@ -86,3 +86,15 @@ servicos_cidade(Cidade, R) :-
                             unicos(L0, L),
                             lista_pares_fst(L, R).
 
+% Extensao do predicado custo_utente: Id, X -> {V,F}
+custo_utente(Id, X) :- solucoes( L, consulta(_, Id, _, L), C), list_sum(C, X).
+
+% Extensao do predicado custo_servico: Id, X -> {V,F}
+custo_servico(Id, X) :- solucoes( L, consulta(_, _, Id ,L), C), list_sum(C, X).
+
+% Extensao do predicado custo_data: Id, X -> {V,F}
+custo_data(Data, X) :- solucoes( L, consulta(Data, _, _, L), C), list_sum(C, X).
+
+% Extensao do predicado custo_instituicao: Id, X -> {V,F}
+custo_instituicao(Inst, X) :- solucoes(L, (consulta(_, _, Id, L), servico(Id, _, Inst, _)), C),
+                             list_sum(C,X).
