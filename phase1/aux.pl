@@ -21,8 +21,6 @@ lista_pares_fst([(A, _) | T], R) :-
                                   lista_pares_fst(T, L),
                                   append([A], L, R).
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 lista_soma([], 0).
 lista_soma([Head | T], R) :-
                           lista_soma(T, R0),
@@ -51,15 +49,3 @@ data(D, 2, A) :-
                A mod 4 =:= 0,
                D >= 1,
                D =< 29.
-=======
-=======
->>>>>>> fb60cfb2d4293480177d445157d383ac725dbe79
-% Extensao do predicado append: L1, L2, L3 -> {V,F}
-append([], List, List).
-append([Head|Tail], List, [Head|Rest]) :-
-append(Tail, List, Rest).
-                                
-<<<<<<< HEAD
->>>>>>> 599f8f6... almost done
-=======
->>>>>>> fb60cfb2d4293480177d445157d383ac725dbe79
