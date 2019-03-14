@@ -41,13 +41,24 @@ servico(13,   'Pediatria',           'Hospital de S.Joao',     'Porto').
 servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
 
 
+% Extensao do predicado servico: Data, IdUt, IdServ, Custo -> {V,F}
+consulta(  data(1,1,2019), 0, 2,  50).
+consulta(  data(1,2,2019), 1, 1, 100).
+consulta(  data(4,2,2019), 1, 1, 100).
+consulta(  data(4,2,2019), 3, 2, 123).
+consulta(  data(1,3,2019), 2, 0,  30).
+consulta(  data(1,4,2019), 3, 6, 150).
+consulta( data(9,12,2019), 6, 9,  10).
+consulta(data(27,11,2020), 3, 9, 200).
+consulta( data(10,5,2020), 6, 14, 50).
+
 % Invariantes
 %
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
 +utente(Id, _, _, _) :: (
                          solucoes(Id, utente(Id, _, _, _), R),
                          comprimento(R, 1)
-                         ).
+                        ).
 % Invarainte referencial: idade de cada utente pertence [0, 110]
 +utente(_, _, Idade, _) :: (
                             integer(Idade),
@@ -104,18 +115,25 @@ servicos_cidade(Cidade, R) :-
                             solucoes(S, servico( _, S, _, Cidade), L),
                             unicos(L, R).
 
-% Extensao do predicado custo_utente: Id, X -> {V,F}
-custo_utente(Id, X) :- solucoes( L, consulta(_, Id, _, L), C), list_sum(C, X).
+% Extensao do predicado custo_utente: Id, R -> {V,F}
+custo_utente(Id, R) :-
+                     solucoes(L, consulta(_, Id, _, L), C),
+                     lista_soma(C, R).
 
-% Extensao do predicado custo_servico: Id, X -> {V,F}
-custo_servico(Id, X) :- solucoes( L, consulta(_, _, Id ,L), C), list_sum(C, X).
+% Extensao do predicado custo_servico: Id, R -> {V,F}
+custo_servico(Id, R) :-
+                      solucoes(L, consulta(_, _, Id, L), C),
+                      lista_soma(C, R).
 
-% Extensao do predicado custo_data: Id, X -> {V,F}
-custo_data(Data, X) :- solucoes( L, consulta(Data, _, _, L), C), list_sum(C, X).
+% Extensao do predicado custo_data: Id, R -> {V,F}
+custo_data((D, M, A), R) :-
+                          solucoes(L, consulta(data(D, M, A), _, _, L), C),
+                          lista_soma(C, R).
 
-% Extensao do predicado custo_instituicao: Id, X -> {V,F}
-custo_instituicao(Inst, X) :- solucoes(L, (consulta(_, _, Id, L), servico(Id, _, Inst, _)), C),
-                             list_sum(C,X).
+% Extensao do predicado custo_instituicao: Id, R -> {V,F}
+custo_instituicao(Inst, R) :-
+                            solucoes(L, consulta(_, _, Inst, L), C),
+                            lista_soma(C, R).
 
 
 % Meta predicados
