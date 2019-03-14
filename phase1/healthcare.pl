@@ -174,3 +174,64 @@ remover(Termo) :- assert(Termo), !, fail.
 % Extensao do predicado que testa uma lista de invariantes
 testa([]).
 testa([I|T]) :- I, testa(T).
+
+
+% Extensao do predicado identificar os utentes de um serviço
+
+
+
+% Extensao do predicado identificar os utentes de um instituicao
+
+
+
+% Extensao do predicado identificar utentes por diferentes critérios de selecao
+% 1 - ID
+search_utente_id(Id,R) :-
+    solucoes((U,Id), utente(Id,U,_,_), R0),
+    unicos(R0,R1),
+    lista_pares_fst(R1,R2).
+
+% 2 - Nome
+search_utente_nome(Nome,R) :-
+    solucoes((Nome,Idade), utente(_,Nome,Idade,_), R0),
+    unicos(R0,R).
+
+% 3 - Nome e Cidade
+search_utente_nome_e_cidade(Nome, Cidade, R) :-
+    solucoes((Nome,Cidade), utente(_,Nome,_,Cidade), R0),
+    unicos(R0,R).
+
+
+% Extensao do predicado identificar servicos por diferentes critério de selecao
+% 1 - ID
+search_servico_id(ID,R) :-
+    solucoes((Desc,ID), servico(ID,Desc,_,_), R0),
+    unicos(R0,R).
+
+% 2 - Descricao e/ou cidade
+search_servico_descricao(Desc,Cid,R) :-
+    solucoes((Inst,Cid), servico(_,Desc,Inst,Cid), R0),
+    unicos(R0,R).
+
+% Extensao do predicado identificar consultas por diferentes criterios de selecao
+% 1 - Data
+search_consulta_data(Data,R) :-
+    solucoes((Data,U), consulta(Data,U,_,_), R0),
+    unicos(R0,R).
+
+% 2 - Utentes envolvidos
+
+
+% 3 - Servico envolvidos
+
+
+% 4 - Custo superior a um valor
+filtra_custo([], _, L).
+filtra_custo((U,D,C)|T, N, L) :-
+    C > N,
+    filtra_custo(T,N,L0).
+
+search_consulta_valor_superior(N,R) :-
+    solucoes((U,Data, Custo), consulta(Data,U,_,Custo), R0),
+    unicos(R0,R1),
+    filtra_custo(R1,N,R2).
