@@ -189,7 +189,7 @@ testa([I|T]) :- I, testa(T).
 search_utente_id(Id,R) :-
     solucoes((U,Id), utente(Id,U,_,_), R0),
     unicos(R0,R1),
-    lista_pares_fst(R1,R2).
+    lista_pares_fst(R1,R).
 
 % 2 - Nome
 search_utente_nome(Nome,R) :-
