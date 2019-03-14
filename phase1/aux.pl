@@ -1,19 +1,5 @@
-% -------------------------------------------------------
-% --------------- Predicados auxiliares -----------------
-% -------------------------------------------------------
-
-% Extensao do predicado nao: Q -> {V,F}
-nao(Q) :- Q, !, fail.
-nao(_).
-
-% Extensao do predicado solucoes: F, Q, S -> {V,F}
-solucoes(F, Q, _) :- Q, assert(tmp(F)), fail.
-solucoes(_, _, S) :- construir(S, []).
-
-% Extensao do predicado construir: S1,S2 -> {V,F}
-construir(S1, S2) :- retract(tmp(X)), !, construir(S1, [X | S2]).
-construir(S,S).
-
+% Predicados auxiliares
+%
 % Extensao do predicado pertence: Elemento, Lista: -> {V,F}
 pertence(H, [H | _]).
 pertence(X, [H | T]) :-
@@ -39,3 +25,9 @@ list_sum( [],0 ).
 list_sum( [Head | Tail], T) :-
                                 list_sum(Tail, SUM),
                                 T is Head + SUM.
+
+% Extensao do predicado comprimento: L, R -> {V,F}
+comprimento([], 0).
+comprimento([_ | T], R) :-
+                         comprimento(T,R0),
+                         R is R0 + 1.
