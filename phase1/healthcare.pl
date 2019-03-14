@@ -179,33 +179,10 @@ testa([I|T]) :- I, testa(T).
 
 
 % Extensao do predicado identificar os utentes de um serviço
-utentes_servico(Servico,R) :-
-    solucoes((ID,Servico), servico(ID,Servico,_,_),R0),
-    unicos(R0,R1),
-    lista_pares_fst(R1,R2),
-    ut_instit_aux(R2,R).
-    
-    %solucoes((U,_), consulta(_,U,R2,_), R3),
-    %unicos(R3,R4),
-    %lista_pares_fst(R4,R).
+
 
 
 % Extensao do predicado identificar os utentes de um instituicao
-ut_instit_aux([], L).
-ut_instit_aux((IdServ|T), L) :-
-    solucoes((U,IdServ), consulta(_,U,IdServ,_), R0),
-    unicos(R0,R1),
-    lista_pares_fst(R1,R2),
-    append(R2,R3,L0),
-    unicos(L0,L),
-    ut_instit_aux(T,R3).
-
-
-utentes_instituicao(Instit,R) :-
-    solucoes((ID,Instit), servico(ID,_,Instit,_), R0),
-    unicos(R0,R1),
-    lista_pares_fst(R1,R2),
-    ut_instit_aux(R2,R).
 
 
 
@@ -248,6 +225,7 @@ search_consulta_data(Data,R) :-
 
 
 % 3 - Servico envolvidos
+
 
 % 4 - Custo superior a um valor
 filtra_custo([], _, L).
