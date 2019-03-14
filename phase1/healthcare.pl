@@ -42,6 +42,7 @@ servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
 servico(15, 'Pediatria', 'Hospital de Braga', 'Braga').
 
 
+<<<<<<< HEAD
 % Extensao do predicado servico: Data, IdUt, IdServ, Custo -> {V,F}
 consulta(  data(1,1,2019), 0, 2,  50).
 consulta(  data(1,2,2019), 1, 1, 100).
@@ -82,6 +83,23 @@ consulta( data(10,5,2020), 6, 14, 50).
 
 % Predicados
 %
+=======
+
+% Extensao do predicado consulta: -> Data, IdUt, IdServ, Custo {V,F}
+consulta(data(1,1,2019),0,2,50).
+consulta(data(1,2,2019),1,1,100).
+consulta(data(1,3,2019),2,0,30).
+consulta(data(1,4,2019),3,6,150).
+consulta(data(9,12,2019),6,9,10).
+consulta(data(27,11,2020),3,9,200).
+consulta(data(10,5,2020),6,14,50).
+
+
+%--------------------------------------------------------
+%----------------- Predicados ---------------------------
+%--------------------------------------------------------
+
+>>>>>>> fb60cfb2d4293480177d445157d383ac725dbe79
 % Extensao do predicado add_utente: IdUt, Nome, Idade, Cidade -> {V,F}
 add_utente(Id, Nome, Idade, Cidade) :- evolucao(utente(Id, Nome, Idade, Cidade)).
 
