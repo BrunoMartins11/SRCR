@@ -83,29 +83,26 @@ instituicoes(R) :-
 
 % Extensao do predicado instituicoes_cidade: Cidade, R -> {V,F}
 instituicoes_cidade(Cidade, R) :-
-                                solucoes((I, Cidade), servico(_, _, I, Cidade), L0),
-                                unicos(L0, L),
-                                lista_pares_fst(L, R).
+                                solucoes(I, servico(_, _, I, Cidade), L),
+                                unicos(L, R).
 
 % Extensao do predicado instituicoes_servico: Servico, R -> {V,F}
 instituicoes_servico(Servico, R) :-
-                                  solucoes((I, Servico), servico(_, Servico, I, _), L0),
-                                  unicos(L0, L),
-                                  lista_pares_fst(L, R).
+                                  solucoes(I, servico(_, Servico, I, _), L),
+                                  unicos(L, R).
 
 % Extensao do predicado instituicoes_id: Id, R -> {V,F}
 instituicoes_id(Id, R) :- solucoes((I, Id), servico(Id, _, I, _), [(R, _)]).
 
 % Extensao do predicado servicos_instituicao: Instituicao, R -> {V,F}
 servicos_instituicao(Instituicao, R) :-
-                                     solucoes((S, Instituicao), servico(_, S, Instituicao, _), L0),
-                                     unicos(L0, L),
-                                     lista_pares_fst(L, R).
+                                     solucoes(S, servico(_, S, Instituicao, _), L),
+                                     unicos(L, R).
 
 % Extensao do predicado servicos_cidade: Cidade, R -> {V,F}
 servicos_cidade(Cidade, R) :-
                             solucoes(S, servico( _, S, _, Cidade), L),
-                            unicos(L, R),
+                            unicos(L, R).
 
 % Extensao do predicado custo_utente: Id, X -> {V,F}
 custo_utente(Id, X) :- solucoes( L, consulta(_, Id, _, L), C), list_sum(C, X).
@@ -136,7 +133,6 @@ construir(S1, S2) :- retract(tmp(X)), !, construir(S1, [X | S2]).
 construir(S,S).
 
 % Extensao do predicado que permite a evolucao do conhecimento
-
 evolucao(Termo) :-
                  solucoes(Inv, +Termo::Inv, LInv),
                  inserir(Termo),
