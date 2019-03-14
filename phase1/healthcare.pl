@@ -215,8 +215,8 @@ search_servico_descricao(Desc,Cid,R) :-
 
 % Extensao do predicado identificar consultas por diferentes criterios de selecao
 % 1 - Data
-search_consulta_data(Data,R) :-
-    solucoes((Data,U), consulta(Data,U,_,_), R0),
+search_consulta_data((D,M,A),R) :-
+    solucoes((data(D, M, A),U), consulta((data(D, M, A)),U,_,_), R0),
     unicos(R0,R).
 
 % 2 - Utentes envolvidos
