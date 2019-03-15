@@ -7,6 +7,7 @@
 :- dynamic servico/4.
 :- dynamic consulta/5.
 :- dynamic medico/2.
+:- dynamic utente_Id/1.
 
 
 % Factos
@@ -23,6 +24,7 @@ utente(7,     'Joao', 29,    'Aveiro', 3).
 utente(8,      'Ana', 40,     'Braga', 1).
 utente(9, 'Catarina', 17,     'Braga', 0).
 
+utente_Id(9).
 
 % Extensao do predicado servico: IdServ, Descricao, Instituicao, Cidade -> {V,F}
 servico(0,     'Cirurgia',    'Hospital Privado de Braga',     'Braga').
@@ -79,6 +81,11 @@ medico(3, 'Dr. Luís').
                             comprimento(L,1)
                            ).
 
+%Invariante estrutural: auto incremetar ID's dos utentes
++utente_Id(_) :: (solucoes( I, utente_Id(I), R), 
+                  comprimento(R,1)
+                ).
+
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
 +servico(Id, _, _, _) :: (
                           solucoes(Id, servico(Id, _, _, _), R),
@@ -111,21 +118,21 @@ medico(3, 'Dr. Luís').
                    ).
 
 %Invariante Estrutural: nao permitir adicionar consultas com Id de utente inexistente
-+consuta(_, IdUt, _, _, _) :: (
++consulta(_, IdUt, _, _, _) :: (
                                         solucoes( IdUt, 
                                         (utente(IdUt,_,_,_,_)), L),
                                          comprimento(L,N),
                                          N==1).
 
 %Invariante Estrutural: nao permitir adicionar consultas com Id de servico inexistente
-+consuta(_, IdServ, _, _, _) :: (
++consulta(_, IdServ, _, _, _) :: (
                                         solucoes( IdServ, 
                                         (servico(IdServ,_,_,_)), L),
                                          comprimento(L,N),
                                          N==1).
 
 %Invariante Estrutural: nao permitir adicionar consultas com Id de medico inexistente
-+consuta(_, _, _, _, IdMed) :: (
++consulta(_, _, _, _, IdMed) :: (
                                         solucoes( IdMed, 
                                         (medico(IdMed,_)), L),
                                          comprimento(L,N),
@@ -135,6 +142,17 @@ medico(3, 'Dr. Luís').
 %
 % Extensao do predicado add_utente: IdUt, Nome, Idade, Cidade, IdMed -> {V,F}
 add_utente(Id, Nome, Idade, Cidade, IdMed) :- evolucao(utente(Id, Nome, Idade, Cidade, IdMed)).
+
+add_utente_a(Nome, Idade, Cidade, IdMed) :- utente_Id(X), involucao(utente_Id(X)),
+                                            Y is X + 1,
+                                            evolucao(utente(Y, 
+                                                            Nome, 
+                                                            Idade,
+                                                            Cidade,
+                                                            IdMed)
+                                                    ), 
+                                            evolucao(utente_Id(Y
+                                          )).
 
 % Extensao do predicado remove_utente: IdUt -> {V,F}
 remove_utente(Id) :- involucao(utente(Id, _, _, _,_)).
