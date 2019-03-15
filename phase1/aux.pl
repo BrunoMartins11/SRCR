@@ -49,3 +49,14 @@ data(D, 2, A) :-
                A mod 4 =:= 0,
                D >= 1,
                D =< 29.
+
+% Extensao do predicado soma: Lista, Valor -> {V,F}
+soma([],0).
+soma([N|Ns], T) :- soma(Ns,X), T is X+N.
+
+% Extençao do predicado media: Lista, Valor -> {V,F}
+media([],0).
+media(List,Med) :-
+    soma(List,X),
+    comprimento(List,L),
+    Med is (div(X,L)).
