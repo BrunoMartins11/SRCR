@@ -173,7 +173,9 @@ add_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
                                                           ).
 
 %Extensão do predicado utente_id: IdUt, R -> {V,F}
-utente_id(IdUt, R) :- solucoes(IdUt, utente(IdUt,_,_,_,_), R).
+utente_id(IdUt, R) :- solucoes((IdUt, Nome, Idade, Cidade, (IdMed, Nmed)), 
+                                (utente(IdUt,Nome, Idade, Cidade, IdMed),
+                                 medico(IdMed, Nmed)), R).
 
 %extensao do predicado utente_nome: Nome, R -> {V,F}
 utente_nome(Nome, R) :- solucoes((Id,Nome), utente(IdUt,Nome,_,_,_), R).
