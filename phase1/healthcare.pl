@@ -46,7 +46,7 @@ servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
 
 % Extensao do predicado servico: Data, IdUt, IdServ, Custo, IdMed -> {V,F}
 consulta(  data(1,1,2019), 0, 2,  50, 1).
-consulta(  data(1,2,2019), 1, 1, 100, 0).
+consulta(  data(1,2,2019), 0, 1, 100, 0).
 consulta(  data(4,2,2019), 1, 1, 100, 3).
 consulta(  data(4,2,2019), 3, 2, 123, 2).
 consulta(  data(1,3,2019), 2, 0,  30, 3).
@@ -252,6 +252,27 @@ medico_familia(IdUt, R) :- (
                                       R)
                            ).
 
+%extensao do predicado consulta_med_utente: IdUt, R -> {V,F}
+consulta_med_utente(IdUt, R) :- 
+                              solucoes((Data, IdMed, Nome),
+                                       (consulta(Data,IdUt,_,_,IdMed),
+                                       medico(IdMed,Nome)),
+                                       R
+                                ).
+
+%extensao do predicado consulta_med_utente_nf: IdUt, R -> {V,F}
+consulta_med_utente_nf(IdUt, R) :-
+                              consulta_med_utente(IdUt,A),
+                              medico_familia(IdUt, ML),
+                              my_fst(ML, L),
+                              filtra_medico(L, A, R).
+
+
+filtra_medico(IdMed, [(_,IdMed,_) | Tail], R) :- filtra_medico(IdMed, Tail, R).
+filtra_medico(IdMed, [Head | Tail], R) :- filtra_medico(IdMed, Tail, R),
+                                          R = [Head | Tail].
+
+my_fst([(Id, X) | T], R) :- R = Id.
 % Meta predicados
 %
 % Extensao do predicado nao: Q -> {V,F}
