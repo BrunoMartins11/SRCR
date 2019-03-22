@@ -267,12 +267,19 @@ consulta_med_utente_nf(IdUt, R) :-
                               my_fst(ML, L),
                               filtra_medico(L, A, R).
 
+%extensao do predicado melhor_instituicao: R -> {V,F}
+melhor_instituicao(R) :- solucoes(IdServ, servico(IdServ,_,_,_), L),
+                         mais_rep(L, Y),
+                         solucoes(Nome, servico(Y, _, Nome,_), R).
 
-filtra_medico(IdMed, [(_,IdMed,_) | Tail], R) :- filtra_medico(IdMed, Tail, R).
+filtra_medico(IdMed, [(L,IdMed,Y) | Tail], R) :- filtra_medico(IdMed, Tail, R).
 filtra_medico(IdMed, [Head | Tail], R) :- filtra_medico(IdMed, Tail, R),
                                           R = [Head | Tail].
 
 my_fst([(Id, X) | T], R) :- R = Id.
+
+mais_rep(L, M) :-
+    setof(I-E, C^(aggregate(count, member(E, L), C), I is -C), [_-M|_]).
 % Meta predicados
 %
 % Extensao do predicado nao: Q -> {V,F}
