@@ -49,3 +49,21 @@ data(D, 2, A) :-
                A mod 4 =:= 0,
                D >= 1,
                D =< 29.
+
+% Extensao do predicado soma: Lista, Valor -> {V,F}
+soma([],0).
+soma([N|Ns], T) :- soma(Ns,X), T is X+N.
+
+% Extençao do predicado media: Lista, Valor -> {V,F}
+media([],0).
+media(List,Med) :-
+    soma(List,X),
+    comprimento(List,L),
+    Med is (div(X,L)).
+
+%Extensao do predicado my_fst: [(Id, X) | T], R -> {V,F}
+my_fst([(Id, _) | _], R) :- R = Id.
+
+%Extesao do predicado mais_rep: L, M -> {V,F}
+mais_rep(L, M) :-
+    setof(I-E, C^(aggregate(count, member(E, L), C), I is -C), [_-M|_]).
