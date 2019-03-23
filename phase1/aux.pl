@@ -60,3 +60,10 @@ media(List,Med) :-
     soma(List,X),
     comprimento(List,L),
     Med is (div(X,L)).
+
+%Extensao do predicado my_fst: [(Id, X) | T], R -> {V,F}
+my_fst([(Id, _) | _], R) :- R = Id.
+
+%Extesao do predicado mais_rep: L, M -> {V,F}
+mais_rep(L, M) :-
+    setof(I-E, C^(aggregate(count, member(E, L), C), I is -C), [_-M|_]).
