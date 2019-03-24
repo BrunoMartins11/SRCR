@@ -234,6 +234,10 @@ custo_medico(IdMed, R) :-
                         solucoes(L, consulta(_,_,_,L,IdMed), C),
                         lista_soma(C,R).
 
+%Extensao do predicado custo_medio: R -> {V,f}
+custo_medio(R) :- solucoes(L, consulta(_,_,_,L,_), C),
+                  media(C,R).
+
 %Extensao do predicado consulta_medico: IdMed, R -> {V,F}
 consulta_medico(IdMed, R) :-
                            solucoes((Data,Esp,Hosp), (consulta(Data,_,IdServ,_,IdMed), 
