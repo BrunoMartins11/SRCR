@@ -225,13 +225,18 @@ custo_data((D, M, A), R) :-
 
 % Extensao do predicado custo_instituicao: Id, R -> {V,F}
 custo_instituicao(Inst, R) :-
-                            solucoes(L, consulta(_, _, Inst, L, _), C),
+                            solucoes(L, (servico(Id,_,Inst,_), 
+                                         consulta(_, _, Id, L, _)), C),
                             lista_soma(C, R).
 
 %Extensao do predicado custo_medico: IdMed, R -> {V,F}
 custo_medico(IdMed, R) :-
                         solucoes(L, consulta(_,_,_,L,IdMed), C),
                         lista_soma(C,R).
+
+%Extensao do predicado custo_medio: R -> {V,f}
+custo_medio(R) :- solucoes(L, consulta(_,_,_,L,_), C),
+                  media(C,R).
 
 %Extensao do predicado consulta_medico: IdMed, R -> {V,F}
 consulta_medico(IdMed, R) :-
