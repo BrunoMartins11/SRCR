@@ -184,6 +184,12 @@ utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _), R).
 
 utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade), R).
 
+utente_servico(Servico, R) :- solucoes((Id, Nome), (consulta(_,Id,IdServ,_,_), servico(IdServ, Servico, _,_), utente(Id, Nome,_,_,_)), R0),
+unicos(R0, R).
+
+utente_instituicao(Instituicao, R) :- solucoes((IdU, Nome), (servico(IdServ, _, Instituicao,_), consulta(_, IdU,IdServ,_,_), utente(IdU, Nome,_,_,_)), R0),
+unicos(R0, R).
+
 servico_id(Id, R) :- solucoes((Id, Descricao, Instituicao, Cidade), servico(Id, Descricao, Instituicao, Cidade), R).
 
 servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id, Descricao, _, Cidade), R).
@@ -191,7 +197,6 @@ servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id,
 consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
 
 consulta_utente(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, Id, IdS, Custo), utente(Id, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
-
 
 consulta_servico(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, IdU, Id, Custo), utente(IdU, NomeU, _, _), servico(Id, NomeS, _, _)), R).
 
