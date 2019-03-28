@@ -62,5 +62,16 @@ media(List,Med) :-
     Med is (div(X,L)).
 
 %Extesao do predicado mais_rep: L, M -> {V,F}
-mais_rep(L, M) :-
-    setof(I-E, C^(aggregate(count, member(E, L), C), I is -C), [_-M|_]).
+highest((X1,Y1),(_,Y2),(X1,Y1)):- Y1 >= Y2.
+highest((_,Y1),(X2,Y2),(X2,Y2)):- Y2 > Y1.
+
+maxR([X],X).
+maxR([X|Xs],K):- maxR(Xs,Z),highest(X,Z,K).
+
+rep([],R,R).
+rep([X|Xs],R,R1):-modify(R,X,R2),rep(Xs,R2,R1).
+
+maxRepeated(X,R):- rep(X,[],K),maxR(K,R).
+modify([],X,[(X,1)]).
+modify([(X,Y)|Xs],X,[(X,K)|Xs]):- K is Y+1.
+modify([(Z,Y)|Xs],X,[(Z,Y)|K]):- Z \= X, modify(Xs,X,K).

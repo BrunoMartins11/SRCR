@@ -291,10 +291,8 @@ consulta_med_utente_nf(IdUt, R) :-
                                           R
                                    ).
 %extensao do predicado melhor_instituicao: R -> {V,F}
-melhor_instituicao(R) :- solucoes(IdServ, servico(IdServ,_,_,_), L),
-                         mais_rep(L, Y),
-                         solucoes(Nome, servico(Y, _, Nome,_), R).
-
+melhor_instituicao(R) :-
+                       solucoes(Nome, (consulta(_,_,IdServ,_,_), servico(IdServ,_,Nome,_)), L), maxRepeated(L, R).
 % Meta predicados
 %
 % Extensao do predicado nao: Q -> {V,F}
