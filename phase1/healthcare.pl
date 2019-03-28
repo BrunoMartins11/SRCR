@@ -283,19 +283,17 @@ consulta_med_utente(IdUt, R) :-
 
 %extensao do predicado consulta_med_utente_nf: IdUt, R -> {V,F}
 consulta_med_utente_nf(IdUt, R) :-
-                              consulta_med_utente(IdUt,A),
-                              medico_familia(IdUt, ML),
-                              my_fst(ML, L),
-                              filtra_medico(L, A, R).
-
+                                 medico_familia(IdUt, [(IdMedM, _)]),
+                                 solucoes((Data, IdMed, Nome),
+                                          (consulta(Data,IdUt,_,_,IdMed),
+                                           medico(IdMed,Nome),
+                                           IdMed \= IdMedM),
+                                          R
+                                   ).
 %extensao do predicado melhor_instituicao: R -> {V,F}
 melhor_instituicao(R) :- solucoes(IdServ, servico(IdServ,_,_,_), L),
                          mais_rep(L, Y),
                          solucoes(Nome, servico(Y, _, Nome,_), R).
-
-filtra_medico(IdMed, [(_,IdMed,_) | Tail], R) :- filtra_medico(IdMed, Tail, R).
-filtra_medico(IdMed, [Head | Tail], R) :- filtra_medico(IdMed, Tail, R),
-                                          R = [Head | Tail].
 
 % Meta predicados
 %
