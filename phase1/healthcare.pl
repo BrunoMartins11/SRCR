@@ -180,25 +180,15 @@ utente_id(IdUt, R) :- solucoes((IdUt, Nome, Idade, Cidade, (IdMed, Nmed)),
 %extensao do predicado utente_nome: Nome, R -> {V,F}
 utente_nome(Nome, R) :- solucoes((IdUt,Nome), utente(IdUt,Nome,_,_,_), R).
 
+utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _), R).
 
-utente_nome(Nome, R) :- solucoes((Id, Nome), utente(Id, Nome, _, _), R0),
-                        unicos(R0, R).
+utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade), R).
 
-utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _), R0),
-                        unicos(R0, R).
+servico_id(Id, R) :- solucoes((Id, Descricao, Instituicao, Cidade), servico(Id, Descricao, Instituicao, Cidade), R).
 
-utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade), R0),
-                        unicos(R0, R).
+servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id, Descricao, _, Cidade), R).
 
-servico_id(Id, R) :- solucoes((Id, Descricao, Instituicao, Cidade), servico(Id, Descricao, Instituicao, Cidade), R0),
-unicos(R0, R).
-
-servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id, Descricao, _, Cidade), R0),
-unicos(R0, R).
-
-
-consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _), servico(IdS, NomeS, _, _)), R0),
-unicos(R0, R).
+consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
 
 consulta_utente(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, Id, IdS, Custo), utente(Id, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
 
