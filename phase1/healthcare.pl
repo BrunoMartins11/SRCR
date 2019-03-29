@@ -117,6 +117,12 @@ medico(3, 'Dr. Luís').
                      comprimento(R,0)
                    ).
 
+-medico(Id, _) :: ( 
+                     solucoes(Id, utente(_,_,_,_,Id), R),
+                     comprimento(R,0)
+                   ).
+
+
 %Invariante Estrutural: nao permitir adicionar consultas com Id de utente inexistente
 +consulta(_, IdUt, _, _, _) :: (
                                         solucoes( IdUt, 
