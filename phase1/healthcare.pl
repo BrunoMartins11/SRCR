@@ -82,7 +82,7 @@ medico(3, 'Dr. Luís').
                            ).
 
 %Invariante estrutural: auto incremetar ID's dos utentes
-+utente_Id(_) :: (solucoes( I, utente_Id(I), R), 
++utente_Id(_) :: (solucoes( I, utente_Id(I), R),
                   comprimento(R,1)
                 ).
 
@@ -101,55 +101,46 @@ medico(3, 'Dr. Luís').
 
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
 +medico(Id, _) :: (
-                         solucoes(Id, medico(Id, _), R),
-                         comprimento(R, 1)
-                        ).
+                   solucoes(Id, medico(Id, _), R),
+                   comprimento(R, 1)
+                  ).
 
 % Invariante estrutural: nao permitir remover utentes com consultas associadas
--utente(IdUt,_,_,_,_) :: ( 
-                         solucoes(IdUt, consulta(_,IdUt,_,_,_), R),
-                         comprimento(R,0)
+-utente(IdUt,_,_,_,_) :: (
+                          solucoes(IdUt, consulta(_,IdUt,_,_,_), R),
+                          comprimento(R,0)
                          ).
 
-%Invariante Estrutural: nao permitir remover medicos com consultas associadas
--medico(Id, _) :: ( 
-                     solucoes(Id, consulta(_,_,_,_,Id), R),
-                     comprimento(R,0)
-                   ).
-
--medico(Id, _) :: ( 
-                     solucoes(Id, utente(_,_,_,_,Id), R),
-                     comprimento(R,0)
-                   ).
+%Invariante estrutural: nao permitir remover medicos com consultas associadas
+-medico(Id, _) :: (
+                   solucoes(Id, utente(_,_,_,_,Id), R),
+                   comprimento(R,0)
+                  ).
 
 
-%Invariante Estrutural: nao permitir adicionar consultas com Id de utente inexistente
+%Invariante estrutural: nao permitir adicionar consultas com Id de utente inexistente
 +consulta(_, IdUt, _, _, _) :: (
-                                        solucoes( IdUt, 
-                                        (utente(IdUt,_,_,_,_)), L),
-                                         comprimento(L,N),
-                                         N==1).
+                                solucoes(IdUt, (utente(IdUt,_,_,_,_)), L),
+                                comprimento(L,1)
+                               ).
 
-%Invariante Estrutural: nao permitir adicionar consultas com Id de servico inexistente
+%Invariante estrutural: nao permitir adicionar consultas com Id de servico inexistente
 +consulta(_, IdServ, _, _, _) :: (
-                                        solucoes( IdServ, 
-                                        (servico(IdServ,_,_,_)), L),
-                                         comprimento(L,N),
-                                         N==1).
+                                  solucoes( IdServ, (servico(IdServ,_,_,_)), L),
+                                  comprimento(L,1)
+                                 ).
 
 %Invariante Estrutural: nao permitir adicionar consultas com Id de medico inexistente
 +consulta(_, _, _, _, IdMed) :: (
-                                        solucoes( IdMed, 
-                                        (medico(IdMed,_)), L),
-                                         comprimento(L,N),
-                                         N==1).
+                                 solucoes( IdMed, (medico(IdMed,_)), L),
+                                 comprimento(L,1)
+                                ).
 
--servico(Id, _, _,_) :: ( 
-                     solucoes(Id, consulta(_,_,Id,_,_), R),
-                     comprimento(R,0)
-                   ).
+-servico(Id, _, _,_) :: (
+                         solucoes(Id, consulta(_,_,Id,_,_), R),
+                         comprimento(R,0)
+                        ).
 
-%
 
 % Predicados
 %
@@ -158,12 +149,12 @@ add_utente(Id, Nome, Idade, Cidade, IdMed) :- evolucao(utente(Id, Nome, Idade, C
 
 add_utente_a(Nome, Idade, Cidade, IdMed) :- utente_Id(X), involucao(utente_Id(X)),
                                             Y is X + 1,
-                                            evolucao(utente(Y, 
-                                                            Nome, 
+                                            evolucao(utente(Y,
+                                                            Nome,
                                                             Idade,
                                                             Cidade,
                                                             IdMed)
-                                                    ), 
+                                                    ),
                                             evolucao(utente_Id(Y
                                           )).
 
@@ -183,7 +174,7 @@ remove_servico(Id) :- involucao(servico(Id,_,_,_)).
 remove_medico(IdMed) :- involucao(medico(IdMed,_)).
 
 %Extensao do predicado remove_consulta Id -> {V,F}
-remove_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :- 
+remove_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
                                                   involucao( consulta(data(D,M,A),
                                                                      IdUt,
                                                                      IdServ,
@@ -194,7 +185,7 @@ remove_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
 
 
 %Extensao do predicado add_consulta: Data(D,M,A), IdUt, IdServ, Custo, IdMed -> {V,F}
-add_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :- 
+add_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
                                                   evolucao( consulta(data(D,M,A),
                                                                      IdUt,
                                                                      IdServ,
@@ -210,9 +201,9 @@ utente_id(IdUt, R) :- solucoes((IdUt, Nome, Idade, Cidade, (IdMed, Nmed)),
 %extensao do predicado utente_nome: Nome, R -> {V,F}
 utente_nome(Nome, R) :- solucoes((IdUt,Nome), utente(IdUt,Nome,_,_,_), R).
 
-utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _), R).
+utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _, _), R).
 
-utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade), R).
+utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade, _), R).
 
 utente_servico(Servico, R) :- solucoes((Id, Nome), (consulta(_,Id,IdServ,_,_), servico(IdServ, Servico, _,_), utente(Id, Nome,_,_,_)), R0),
 unicos(R0, R).
@@ -224,11 +215,11 @@ servico_id(Id, R) :- solucoes((Id, Descricao, Instituicao, Cidade), servico(Id, 
 
 servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id, Descricao, _, Cidade), R).
 
-consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
+consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _, _), servico(IdS, NomeS, _, _)), R).
 
-consulta_utente(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, Id, IdS, Custo), utente(Id, NomeU, _, _), servico(IdS, NomeS, _, _)), R).
+consulta_utente(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, Id, IdS, Custo), utente(Id, NomeU, _, _, _), servico(IdS, NomeS, _, _)), R).
 
-consulta_servico(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, IdU, Id, Custo), utente(IdU, NomeU, _, _), servico(Id, NomeS, _, _)), R).
+consulta_servico(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, IdU, Id, Custo), utente(IdU, NomeU, _, _, _), servico(Id, NomeS, _, _)), R).
 
 
 % Extensao do predicado instituicoes: R -> {V,F}
@@ -276,7 +267,7 @@ custo_data((D, M, A), R) :-
 
 % Extensao do predicado custo_instituicao: Id, R -> {V,F}
 custo_instituicao(Inst, R) :-
-                            solucoes(L, (servico(Id,_,Inst,_), 
+                            solucoes(L, (servico(Id,_,Inst,_),
                                          consulta(_, _, Id, L, _)), C),
                             lista_soma(C, R).
 
@@ -291,7 +282,7 @@ custo_medio(R) :- solucoes(L, consulta(_,_,_,L,_), C),
 
 %Extensao do predicado consulta_medico: IdMed, R -> {V,F}
 consulta_medico(IdMed, R) :-
-                           solucoes((Data,Esp,Hosp), (consulta(Data,_,IdServ,_,IdMed), 
+                           solucoes((Data,Esp,Hosp), (consulta(Data,_,IdServ,_,IdMed),
                                         servico(IdServ,Esp,Hosp,_)), R).
 
 %Extensao do predicado media_idade_utentes: R -> {V,F}
@@ -302,14 +293,14 @@ media_idade_utentes(R) :- (
 
 %Extensao do predicado medico_familia: IdUt, R -> {V,F}
 medico_familia(IdUt, R) :- (
-                            solucoes((IdMed, Nome), 
+                            solucoes((IdMed, Nome),
                                      (utente(IdUt,_,_,_,IdMed),
-                                      medico(IdMed, Nome)), 
+                                      medico(IdMed, Nome)),
                                       R)
                            ).
 
 %extensao do predicado consulta_med_utente: IdUt, R -> {V,F}
-consulta_med_utente(IdUt, R) :- 
+consulta_med_utente(IdUt, R) :-
                               solucoes((Data, IdMed, Nome),
                                        (consulta(Data,IdUt,_,_,IdMed),
                                        medico(IdMed,Nome)),
