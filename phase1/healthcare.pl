@@ -117,6 +117,12 @@ medico(3, 'Dr. Luís').
                      comprimento(R,0)
                    ).
 
+-medico(Id, _) :: ( 
+                     solucoes(Id, utente(_,_,_,_,Id), R),
+                     comprimento(R,0)
+                   ).
+
+
 %Invariante Estrutural: nao permitir adicionar consultas com Id de utente inexistente
 +consulta(_, IdUt, _, _, _) :: (
                                         solucoes( IdUt, 
@@ -137,6 +143,13 @@ medico(3, 'Dr. Luís').
                                         (medico(IdMed,_)), L),
                                          comprimento(L,N),
                                          N==1).
+
+-servico(Id, _, _,_) :: ( 
+                     solucoes(Id, consulta(_,_,Id,_,_), R),
+                     comprimento(R,0)
+                   ).
+
+%
 
 % Predicados
 %
@@ -160,8 +173,25 @@ remove_utente(Id) :- involucao(utente(Id, _, _, _,_)).
 %Extensão do predicado add_medico: IdMed, Nome -> {V,F}
 add_medico(IdMed, Nome) :- evolucao(medico(IdMed, Nome)).
 
+%Extensão do predicado add_servico: Id, Descricao, Instituicao, cidade -> {V,F}
+add_servico(Id, D, I, C) :- evolucao(servico(Id, D, I, C)).
+
+%Extensao do rpedicado remove_servico: Id -> {V,F}
+remove_servico(Id) :- involucao(servico(Id,_,_,_)).
+
 %Extensão do predicado remove_medico: IdMed -> {V,F}
 remove_medico(IdMed) :- involucao(medico(IdMed,_)).
+
+%Extensao do predicado remove_consulta Id -> {V,F}
+remove_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :- 
+                                                  involucao( consulta(data(D,M,A),
+                                                                     IdUt,
+                                                                     IdServ,
+                                                                     Custo,
+                                                                     IdMed)
+                                                          ).
+
+
 
 %Extensao do predicado add_consulta: Data(D,M,A), IdUt, IdServ, Custo, IdMed -> {V,F}
 add_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :- 
