@@ -4,7 +4,7 @@
 % Definições iniciais
 :- op(900, xfy, '::').
 :- dynamic utente/4.
-:- dynamic cuidado/5.
+:- dynamic cuidado/6.
 :- dynamic prestador/4.
 :- dynamic utente_Id/1.
 
@@ -77,15 +77,38 @@ cuidado(0, data(12,12,12), 4, 0, 'Protese', 100).
                                   nao(utente(IdUt, Nome, Idade, Morada)),
 	                                nao(excecao(utente(IdUt, Nome, Idade, Morada))).
 %Extensao d predicado que define a negaçao forte de um cuidado.
--cuidado(Data, IdU, IdP, Desc, Cust) :-
-                                      nao(cuidado(Data, IdU, IdP, Desc, Cust)),
-	                                    nao(excecao(cuidado(Data, IdU, IdP, Desc, Cust))).
+-cuidado(Id,Data, IdU, IdP, Desc, Cust) :-
+                                      nao(cuidado(Id,Data, IdU, IdP, Desc, Cust)),
+	                                    nao(excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust))).
 
 %Extensao do predicado que define a negação forte de prestador.
 -prestador(Id, Nome, Espc, Inst) :- nao(prestador(Id, Nome, Espc, Inst)),
                                     nao(excecao(prestador(Id, Nome, Espc, Inst))).
 
 
+
+%Conhecimento incerto.
+nulo(nulo1).
+cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
+excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust)) :-
+                                                 cuidado(Data, IdUt, IdServ, Desc, nulo1).
+                                               
+%Conhecimento impreciso
+excecao(utente(14, 'Alfredo', 74, 'Rua de Baixo')).
+excecao(utente(14, 'Alfredo', 74, 'Rua de Barros')).
+ 
+%Conhecimento Interdito
+cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
+excecao(cuidado(Id, Data, IdUt, IdServ, Desc, Custo)) :-
+                                                       cuidado(Id, Data, nulo2, IdServ, Custo, IdPro).
+nulo(nulo2).
++cuidado(Id, Data, IdUt, IdServ, Desc, Custo) :: (
+    solucoes(IdUtVar, (cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123)), nao(nulo(IdUtVar)), S),
+    comprimento(S,0)
+).
+  
+  
+  
 % Meta predicados
 % Extensao do predicado nao: Q -> {V,F}
 nao(Q) :- Q, !, fail.
