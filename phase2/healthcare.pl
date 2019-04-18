@@ -94,8 +94,8 @@ excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust)) :-
                                                  cuidado(Data, IdUt, IdServ, Desc, nulo1).
                                                
 %Conhecimento impreciso
-excecao(utente(14, 'Alfredo', 74, 'Rua de Baixo')).
-excecao(utente(14, 'Alfredo', 74, 'Rua de Barros')).
+excecao(utente(24, 'Antonio', 32, 'Porto')).
+excecao(utente(24, 'Antonio', 32, 'Matosinhos')).
  
 %Conhecimento Interdito
 cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
@@ -107,8 +107,32 @@ nulo(nulo2).
     comprimento(S,0)
 ).
   
-  
-  
+ % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
+
+evolucaoPerfeito(utente(IdUt,Nome,Idade,Morada)) :-
+	solucoes(Inv, +utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
+	testa(LInv),
+	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
+	assert(utente(IdUt,Nome,Idade,Morada)).
+
+evolucaoPerfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+	solucoes(Inv, +(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
+	testa(LInv),
+	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
+	assert((-utente(IdUt,Nome,Idade,Morada))).
+
+involucaoPerfeito(utente(IdUt, Nome, Idade, Morada)) :-
+	utente(IdUt, Nome, Idade, Morada),
+	solucoes(Inv, -utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
+	testa(LInv),
+	retract(utente(IdUt, Nome, Idade, Morada)).
+
+involucaoPerfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+	utente(IdUt, Nome, Idade, Morada),
+	solucoes(Inv, -(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
+	testa(LInv),
+	retract(utente(IdUt, Nome, Idade, Morada)).
+
 % Meta predicados
 % Extensao do predicado nao: Q -> {V,F}
 nao(Q) :- Q, !, fail.
