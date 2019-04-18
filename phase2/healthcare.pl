@@ -1,27 +1,40 @@
 % Modulo auxiliar
 :- consult('aux.pl').
-
 % Definições iniciais
 :- op(900, xfy, '::').
 :- dynamic utente/4.
 :- dynamic cuidado/6.
 :- dynamic prestador/4.
 :- dynamic utente_Id/1.
+:- dynamic nulo/1.
+:- dynamic impreciso/1.
+
 
 
 % Factos
 %
 % Extensao do predicado utente: IdUt, Nome, Idade, Cidade -> {V,F,D}
 utente(0,     'Jose', 55,     'Porto' ).
+perfeito(utente(0)).
 utente(1,     'Joao', 21,     'Braga' ).
+perfeito(utente(1)).
 utente(2,   'Manuel', 36,     'Porto' ).
+perfeito(utente(2)).
 utente(3,   'Carlos', 43, 'Guimaraes' ).
+perfeito(utente(3)).
 utente(4,    'Maria', 73, 'Guimaraes' ).
+perfeito(utente(4)).
 utente(5,    'Joana',  8,     'Porto' ).
+perfeito(utente(5)).
 utente(6, 'Fernando', 49,    'Aveiro' ).
+perfeito(utente(6)).
 utente(7,     'Joao', 29,    'Aveiro' ).
+perfeito(utente(7)).
 utente(8,      'Ana', 40,     'Braga' ).
+perfeito(utente(8)).
 utente(9, 'Catarina', 17,     'Braga' ).
+perfeito(utente(9)).
+
 
 utente_Id(9).
 
@@ -96,7 +109,8 @@ excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust)) :-
 %Conhecimento impreciso
 excecao(utente(24, 'Antonio', 32, 'Porto')).
 excecao(utente(24, 'Antonio', 32, 'Matosinhos')).
- 
+impreciso(utente(24)). 
+
 %Conhecimento Interdito
 cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
 excecao(cuidado(Id, Data, IdUt, IdServ, Desc, Custo)) :-
@@ -109,29 +123,47 @@ nulo(nulo2).
   
  % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
 
-evolucaoPerfeito(utente(IdUt,Nome,Idade,Morada)) :-
+evolucao_perfeito(utente(IdUt,Nome,Idade,Morada)) :-
 	solucoes(Inv, +utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
 	testa(LInv),
 	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
-	assert(utente(IdUt,Nome,Idade,Morada)).
+	assert(utente(IdUt,Nome,Idade,Morada)),
+  assert(perfeito(utente(IdUtU))).
 
-evolucaoPerfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+evolucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
 	solucoes(Inv, +(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
 	testa(LInv),
 	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
-	assert((-utente(IdUt,Nome,Idade,Morada))).
+	assert((-utente(IdUt,Nome,Idade,Morada))),
+  assert(perfeito(utente(IdUt))).
 
-involucaoPerfeito(utente(IdUt, Nome, Idade, Morada)) :-
+involucao_perfeito(utente(IdUt, Nome, Idade, Morada)) :-
 	utente(IdUt, Nome, Idade, Morada),
 	solucoes(Inv, -utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
 	testa(LInv),
-	retract(utente(IdUt, Nome, Idade, Morada)).
+	retract(utente(IdUt, Nome, Idade, Morada)),
+  retract(perfeito(utente(IdUt))).
 
-involucaoPerfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+involucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
 	utente(IdUt, Nome, Idade, Morada),
 	solucoes(Inv, -(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
 	testa(LInv),
-	retract(utente(IdUt, Nome, Idade, Morada)).
+	retract(utente(IdUt, Nome, Idade, Morada)),
+  retract(perfeito(utente(IdUt))).
+
+%Inserir Exceções
+insere_excecoes([]).
+insereExcecoes([utente(IdUt, Nome, Idade, Morada)|Es]) :-
+	assert(excecao(utente(IdUt, Nome, Idade, Morada))),	
+	assert(impreciso(utente(IdUt))),
+	insere_excecoes(Es).
+
+%Remover exceções
+remove_excecoes([]).
+remove_excecoes([utente(IdUt,Nome,Idade,Morada)|Ps]) :-
+	retract(excecao(utente(IdUt, Nome, Idade, Morada))),
+	retract(impreciso(utente(IdUt))),
+	remove_excecoes(Ps).
 
 % Meta predicados
 % Extensao do predicado nao: Q -> {V,F}
