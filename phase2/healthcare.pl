@@ -42,10 +42,11 @@ utente_Id(9).
 %extensao do predicado prestador: IdPrest, Nome, Especialidade, Instituição -> {V, F ,D}
 
 prestador(0, 'Joao', 'Ortopedia', 'Hospital Privado de Braga').
-
+prestador(1, 'André', 'Cardio', 'Hospital de Guimaraes').
 %Extensao do predicado cuidado: Id, Data, IdUt, IdPrest, Descriçao, Custo -> {V, F, D}
 
 cuidado(0, data(12,12,12), 4, 0, 'Protese', 100).
+cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 
 % Invariantes
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
@@ -275,6 +276,12 @@ involucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
 				       comprimento(S,0)
 				     ))),
 	retract(utente(IdUt, Nome,Idade,Morada)).
+
+%Predicado para saber a idade de um utente.
+idade_utente(Id, I) :- utente(Id, _, I, _).
+
+%Predicado para saber o custo de um cuidado.
+custo_cuidado(Id, C) :- cuidado(Id, _,_,_,_, C).
 
 % Meta predicados
 % Extensao do predicado nao: Q -> {V,F}
