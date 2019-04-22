@@ -9,6 +9,8 @@
 :- dynamic utente_Id/1.
 :- dynamic nulo/1.
 :- dynamic impreciso/1.
+:- dynamic excecao/1.
+:- dynamic '::'/2.
 :- op(995, fx, '@|').  % operador de negacao
 :- op(996, xfy, '@&').  % operador de conjuncao
 :- op(997, xfy, '@$').  % operador de disjuncao
@@ -116,25 +118,24 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
 +utente(Id, _, _, _) :: (
                          solucoes(Id, utente(Id, _, _, _), R),
-                         comprimento(R, 1)).
+                         comprimento(R, 1)
+                     ).
 
 %Invariante que define existir uma so negação explicita
 +(-utente(Id , Nome, Idade, Cidade)) :: (solucoes(Id, -utente(Id , Nome, Idade, Cidade),S),
-                                         comprimento(S,N),
-                                         N==1).
+                                         comprimento(S,1)
+                                     ).
 
 
 %Invariante que define que tem de existir uma e uma so negaçao explicita.
- +(-cuidado(Id, Data, IdU, IdP, Desc, Cust)) :: 
-                                           (solucoes(Id, -cuidado(Id, Data, IdU, IdP, Desc, Cust), S),
-	                                          comprimento(S, N),
-	                                          N == 1
+ +(-cuidado(Id, Data, IdU, IdP, Desc, Cust)) :: (solucoes(Id, -cuidado(Id, Data, IdU, IdP, Desc, Cust), S),
+	                                          comprimento(S, 1)
                                            ).
 
 %Invariante que define existir uma so negação explicita
 +(-prestador(Id, Nome, Espc, Inst)) :: (solucoes(Id, -prestador(Id, Nome, Espc, Inst), S),
-                                        comprimento(S,N),
-                                        N==1).
+                                        comprimento(S,1)
+                                       ).
 
 
 %Invariante estrutural: auto incremetar ID's dos utentes
@@ -163,11 +164,10 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
 excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust)) :-
                                                  cuidado(Data, IdUt, IdServ, Desc, nulo1).
-                                               
 %Conhecimento impreciso
 excecao(utente(24, 'Antonio', 32, 'Porto')).
 excecao(utente(24, 'Antonio', 32, 'Matosinhos')).
-impreciso(utente(24)). 
+impreciso(utente(24)).
 
 %Conhecimento Interdito
 cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
@@ -178,7 +178,7 @@ nulo(nulo2).
     solucoes(IdUtVar, (cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123)), nao(nulo(IdUtVar)), S),
     comprimento(S,0)
 ).
-  
+ %
  % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
 
 evolucao_perfeito(utente(Id, N, I, M)) :-
@@ -212,7 +212,7 @@ involucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
 %Inserir Exceções
 insere_excecoes([]).
 insere_excecoes([utente(IdUt, Nome, Idade, Morada)|Es]) :-
-	inserir(excecao(utente(IdUt, Nome, Idade, Morada))),	
+	inserir(excecao(utente(IdUt, Nome, Idade, Morada))),
 	inserir(impreciso(utente(IdUt))),
 	insere_excecoes(Es).
 
@@ -225,7 +225,7 @@ remove_excecoes([utente(IdUt,Nome,Idade,Morada)|Ps]) :-
 
 
 %Evolução do conhecimento incerto da idade de um utente
-evolucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :- 
+evolucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :-
 	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv2),
 	inserir((excecao(utente(Id,N,_,M)) :-
 	       utente(Id,N,Idade,M))),
@@ -233,7 +233,7 @@ evolucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :-
 	testa(LInv2).
 
 %Evolução do conhecimento incerto do custo de um cuidado
-evolucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :- 
+evolucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
 	solucoes(Inv, +cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)::Inv, LInv2),
 	inserir((excecao(cuidado(I, D, IU, IP, D, _)) :-
 	       cuidado(I, D, IU, IP, D, Custo))),
@@ -272,7 +272,7 @@ evolucao_impreciso([utente(IdUt, Nome, Idade, Morada)|T]) :-
 testaInvs([]).
 testaInvs([P|Ps]) :-
 	solucoes(Inv, +P::Inv, LInv1),
-	testa(LInv1),	 
+	testa(LInv1),
 	testaInvs(Ps).
 
 utente_igual([], _).
@@ -295,7 +295,7 @@ involucao_impreciso([utente(Id,Nome,Idade,Morada) | T]) :-
     testaInvolInvs([utente(Id,Nome,Idade,Morada) | T]).
 
 testaInvolInvs([]).
-testaInvolInvs([P|Ps]) :- 
+testaInvolInvs([P|Ps]) :-
     solucoes(Inv, -P::Inv, LInv),
     testa(LInv),
     testaInvolInvs(Ps).
