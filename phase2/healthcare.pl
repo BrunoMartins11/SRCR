@@ -2,6 +2,7 @@
 :- consult('aux.pl').
 % Definições iniciais
 :- op(900, xfy, '::').
+:- op(900, xfy, ':~:').
 :- dynamic utente/4.
 :- dynamic cuidado/6.
 :- dynamic prestador/4.
@@ -54,12 +55,6 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
                          solucoes(Id, utente(Id, _, _, __), R),
                          comprimento(R, 1)
                         ).
-% Invarainte referencial: idade de cada utente pertence [0, 110]
-%+utente(_, _, Idade, _) :: (
-%                           integer(Idade),
-%                           Idade >= 0,
-%                           Idade =< 110
-%                          ).
 
 %Invariante que define existir uma so negação explicita
 +(-utente(Id , Nome, Idade, Cidade)) :: (solucoes(Id, -utente(Id , Nome, Idade, Cidade),S),
@@ -99,6 +94,8 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
                                     nao(excecao(prestador(Id, Nome, Espc, Inst))).
 
 
+%Invariante que nao permite adicionar conhecimento imperfeito na presença de perfeito
++utente(Id,_,_,_) :~: (nao(perfeito(utente(Id)))).
 
 %Conhecimento incerto.
 cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
@@ -123,11 +120,11 @@ nulo(nulo2).
  % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
 
 evolucao_perfeito(utente(IdUt,Nome,Idade,Morada)) :-
-	solucoes(Inv, +utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
+	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
 	testa(LInv),
   %remover_impreciso(utente(IdUt,Nome,Idade,Morada)),
-	assert(utente(IdUt,Nome,Idade,Morada)),
-  assert(perfeito(utente(IdUt))).
+	inserir(utente(IdUt,Nome,Idade,Morada)),
+  inserir(perfeito(utente(IdUt))).
 
 evolucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
 	solucoes(Inv, +(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
@@ -252,15 +249,17 @@ procura_excecao([T|Ts]) :-
 %Evolucao do conhecimento interdito sobre a idade de um utente
 evolucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
 	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
+  solucoes(Inv, +utente(IdUt, Nome, Idade, Morada):~:Inv, LInv1),
 	testa(LInv),
+  testa(LInv1),
 	assert(nulo(Idade)),
-	assert((excecao(utente(Id,N,I,M)) :-
+	inserir((excecao(utente(Id,N,I,M)) :-
 	       utente(Id,N,Idade,M))),
-	assert((+utente(Id,N,I,M) :: (
+	inserir((+utente(Id,N,I,M) :: (
 				       solucoes(Id,(utente(Id,_,Idade,_), nulo(Idade)),S),
 				       comprimento(S,0)
 				     ))),
-	assert(utente(IdUt, Nome,Idade,Morada)).
+	inserir(utente(IdUt, Nome,Idade,Morada)).
 
 % Involucao do conhecimento interdito relativo a idade de um utente
 involucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
