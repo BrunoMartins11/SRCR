@@ -1,14 +1,19 @@
 % Modulo auxiliar
 :- consult('aux.pl').
+
 % Definições iniciais
 :- op(900, xfy, '::').
-:- dynamic utente/4.
+:- op(900, xfy, ':-:').
+:- discontiguous utente/4.
+:- discontiguous perfeito/1.
 :- dynamic cuidado/6.
 :- dynamic prestador/4.
-:- dynamic utente_Id/1.
+:- dynamic perfeito/1.
 :- dynamic nulo/1.
 :- dynamic impreciso/1.
-
+:- dynamic excecao/1.
+:- dynamic '-'.
+:- dynamic '::'. 
 
 
 % Factos
@@ -37,8 +42,6 @@ perfeito(utente(9)).
 -utente(9, 'Catarina', 23, 'Braga' ).
 
 
-utente_Id(9).
-
 %extensao do predicado prestador: IdPrest, Nome, Especialidade, Instituição -> {V, F ,D}
 
 prestador(0, 'Joao', 'Ortopedia', 'Hospital Privado de Braga').
@@ -50,7 +53,7 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 
 % Invariantes
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
-+utente(Id, _, _, _, _) :: (
++utente(Id, _, _, _) :: (
                          solucoes(Id, utente(Id, _, _, __), R),
                          comprimento(R, 1)
                         ).
@@ -60,6 +63,41 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 %                           Idade >= 0,
 %                           Idade =< 110
 %                          ).
+%Invariante que não permite adicionar cuidados com o mesmo Id
++cuidado(Id, _,_,_,_,_) :: (
+                         solucoes(Id, cuidado(Id,_,_,_,_,_), R),
+                         comprimento(R,1)
+                         ).
+
+%Invariante que não permite adicionar cuidados com Id de Utente inexistente
++cuidado(_,_, Id,_,_,_) :: (
+                         solucoes(Id, utente(Id, _,_,_), R),
+                         comprimento(R,1)
+                         ).
+%Invariante que não permite adicionar cuidados com Id do prestador inexistente
++cuidado(_,_,_,Id , _,_) :: (
+                         solucoes(Id, prestador(Id, _,_,_), R),
+                         comprimento(R,1)
+                         ).
+
+% Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
++prestador(Id, _, _, _) :: (
+                         solucoes(Id, prestador(Id, _, _, _), R),
+                         comprimento(R, 1)
+                        ).
+
+% Invariante que não permite remover utentes com cuidados associados
+-utente(Id, _,_,_) :: (
+                         solucoes(Id, cuidado(_,_,Id,_,_,_), R),
+                         comprimento(R,0)
+                         ).
+
+                       %Invariante que não permite remover prestadores com cuidados associados                      
+ -prestador(Id, _,_,_) :: (
+                         solucoes(Id, cuidado(_,_,_,Id,_,_), R),
+                         comprimento(R,0)
+                         ).
+ 
 
 %Invariante que define existir uma so negação explicita
 +(-utente(Id , Nome, Idade, Cidade)) :: (solucoes(Id, -utente(Id , Nome, Idade, Cidade),S),
@@ -79,13 +117,7 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
                                         comprimento(S,N),
                                         N==1).
 
-
-%Invariante estrutural: auto incremetar ID's dos utentes
-+utente_Id(_) :: (solucoes( I, utente_Id(I), R),
-                  comprimento(R,1)
-                ).
-% Invariante estrutural: nao permitir remover utentes com consultas associadas
--utente(Id,_,_,_) :: (nao( cuidado(_,Id,_,_,_) )).
+% Extensão do predicado que define a negação forte de um utente
 -utente(IdUt, Nome, Idade, Morada) :-
                                   nao(utente(IdUt, Nome, Idade, Morada)),
 	                                nao(excecao(utente(IdUt, Nome, Idade, Morada))).
@@ -98,7 +130,12 @@ cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 -prestador(Id, Nome, Espc, Inst) :- nao(prestador(Id, Nome, Espc, Inst)),
                                     nao(excecao(prestador(Id, Nome, Espc, Inst))).
 
-
+% Invariante que nao permite a insercao de conhecimento incerto/interdito se exisitir conhecimento.
++utente(IdUt, _, _, _) :-: (
+	                                  nao(perfeito(utente(IdUt))),
+	                                  nao(impreciso(utente(IdUt))),
+	                                  nao(incerto(utente(IdUt)))
+).
 
 %Conhecimento incerto.
 cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
@@ -112,8 +149,8 @@ impreciso(utente(24)).
 
 %Conhecimento Interdito
 cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
-excecao(cuidado(Id, Data, IdUt, IdServ, Desc, Custo)) :-
-                                                       cuidado(Id, Data, nulo2, IdServ, Custo, IdPro).
+excecao(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
+                                                       cuidado(Id, Data, nulo2, IdPrest, Desc, Custo).
 nulo(nulo2).
 +cuidado(Id, Data, IdUt, IdServ, Desc, Custo) :: (
     solucoes(IdUtVar, (cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123)), nao(nulo(IdUtVar)), S),
@@ -168,7 +205,9 @@ remove_excecoes([utente(IdUt,Nome,Idade,Morada)|Ps]) :-
 %Evolução do conhecimento incerto da idade de um utente
 evolucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :- 
 	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv2),
+  solucoes(Inv, +utente(IdUt, Nome, Idade, Morada):-:Inv, LInv1),
 	testa(LInv2),
+  testa(LInv1),
 	assert((excecao(utente(Id,N,_,M)) :-
 	       utente(Id,N,Idade,M))),
 	assert(utente(IdUt, Nome, Idade, Morada)),
@@ -181,7 +220,7 @@ evolucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
 	assert((excecao(cuidado(I, D, IU, IP, D, _)) :-
 	       cuidado(I, D, IU, IP, D, Custo))),
 	assert(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)),
-	assert(incerto_custo(Id, Custo)).
+	assert(incerto_custo(cuidado(Id, Custo))).
 
 %Involução incerto idade utente
 involucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :-
@@ -203,20 +242,21 @@ involucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
 	retract((excecao(cuidado(I, D, IU, IP, D, _)) :-
 	       cuidado(I, D, IU, IP, D, Custo))),
 	retract(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)),
-	retract(incerto_custo(Id, _)).
+	retract(incerto_custo(cuidado(Id, _))).
 
 %Evolução de conhecimento impreciso
 evolucao_impreciso([utente(IdUt, Nome, Idade, Morada)|T]) :-
 	T \= [],
 	utente_igual(T, IdUt),
 	testaInvs([utente(IdUt, Nome, Idade, Morada)|T]),
-  %remove_incerto(utente(IdUt, Nome, Idade, Morada)),
   assert(impreciso(IdUt)),
 	insere_excecoes([utente(IdUt, Nome, Idade, Morada)|T]).
 
 testaInvs([]).
 testaInvs([P|Ps]) :-
 	solucoes(Inv, +P::Inv, LInv1),
+  solucoes(Inv, +P:-:Inv, LInv),
+  testa(LInv),
 	testa(LInv1),	 
 	testaInvs(Ps).
 
@@ -252,7 +292,9 @@ procura_excecao([T|Ts]) :-
 %Evolucao do conhecimento interdito sobre a idade de um utente
 evolucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
 	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
+  solucoes(Inv, +utente(IdUt,Nome,Idade,Morada):-:Inv, LInv1),
 	testa(LInv),
+  testa(LInv1),
 	assert(nulo(Idade)),
 	assert((excecao(utente(Id,N,I,M)) :-
 	       utente(Id,N,Idade,M))),
