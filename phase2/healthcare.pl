@@ -1,326 +1,345 @@
 % Modulo auxiliar
 :- consult('aux.pl').
-
 % Definições iniciais
 :- op(900, xfy, '::').
-:- dynamic utente/5.
-:- dynamic servico/4.
-:- dynamic consulta/5.
-:- dynamic medico/2.
+:- op(900, xfy, ':~:').
+:- dynamic utente/4.
+:- dynamic cuidado/6.
+:- dynamic prestador/4.
 :- dynamic utente_Id/1.
+:- dynamic nulo/1.
+:- dynamic impreciso/1.
+:- op(995, fx, '@|').  % operador de negacao
+:- op(996, xfy, '@&').  % operador de conjuncao
+:- op(997, xfy, '@$').  % operador de disjuncao
+:- op(997, xfy, '@#').  % operador de negacao exclusiva
+:- op(998, xfx, '@=>' ).  % operador de implicacao
+:- op(999, xfx, '@<=>'). % operador de equivalencia
 
 
+si(P0 @<=> P1, V) :-
+                  si(P0, V0),
+                  si(P1, V1),
+                  equivalencia(V0, V1, V), !.
+si(P0 @=> P1, V) :-
+                 si(P0, V0),
+                 si(P1, V1),
+                 implicacao(V0, V1, V), !.
+si(P0 @$ P1, V) :-
+                 si(P0, V0),
+                 si(P1, V1),
+                 disjuncao(V0, V1, V), !.
+si(P0 @& P1, V) :-
+                 si(P0, V0),
+                 si(P1, V1),
+                 conjuncao(V0, V1, V), !.
+
+si(P0 @# P1, V) :-
+                  si(P0, V0),
+                  si(P1, V1),
+                  negacaoExclusiva(V0, V1, V), !.
+
+si(@| P0, V) :- si(P0, P1), negacao(P1, V), !.
+si(P, verdadeiro) :- P.
+si(P, falso) :- -P.
+si(P, desconhecido) :-
+                     nao(P),
+                     nao(-P).
+
+equivalencia(Y, Y, verdadeiro) :- Y \= desconhecido.
+equivalencia(desconhecido, _, desconhecido).
+equivalencia(_, desconhecido, desconhecido).
+equivalencia(verdadeiro, falso, falso).
+equivalencia(falso, verdadeiro, falso).
+
+implicacao(verdadeiro, Y, Y).
+implicacao(falso, _, verdadeiro).
+implicacao(desconhecido, Y, Y) :- Y \= falso.
+implicacao(desconhecido, falso, desconhecido).
+
+disjuncao(verdadeiro, _, verdadeiro).
+disjuncao(falso, Y, Y).
+disjuncao(desconhecido, Y, desconhecido) :- Y \= verdadeiro.
+disjuncao(desconhecido, verdadeiro, verdadeiro).
+
+conjuncao(verdadeiro, Y, Y).
+conjuncao(falso, _, falso).
+conjuncao(desconhecido, falso, falso).
+conjuncao(desconhecido, Y, desconhecido) :- Y \= falso.
+
+negacao(verdadeiro, falso).
+negacao(falso, verdadeiro).
+negacao(desconhecido, desconhecido).
+
+negacaoExclusiva(P, Q, R) :-
+                           conjuncao(P, Q, R0), negacao(R0, R1),
+                           disjuncao(P, Q, R2),
+                           conjuncao(R1, R2, R).
 % Factos
 %
-% Extensao do predicado utente: IdUt, Nome, Idade, Cidade, IdMed -> {V,F}
-utente(0,     'Jose', 55,     'Porto', 1).
-utente(1,     'Joao', 21,     'Braga', 1).
-utente(2,   'Manuel', 36,     'Porto', 1).
-utente(3,   'Carlos', 43, 'Guimaraes', 0).
-utente(4,    'Maria', 73, 'Guimaraes', 0).
-utente(5,    'Joana',  8,     'Porto', 3).
-utente(6, 'Fernando', 49,    'Aveiro', 3).
-utente(7,     'Joao', 29,    'Aveiro', 3).
-utente(8,      'Ana', 40,     'Braga', 1).
-utente(9, 'Catarina', 17,     'Braga', 0).
+% Extensao do predicado utente: IdUt, Nome, Idade, Cidade -> {V,F,D}
+utente(0,     'Jose', 55,     'Porto' ).
+perfeito(utente(0)).
+utente(1,     'Joao', 21,     'Braga' ).
+perfeito(utente(1)).
+utente(2,   'Manuel', 36,     'Porto' ).
+perfeito(utente(2)).
+utente(3,   'Carlos', 43, 'Guimaraes' ).
+perfeito(utente(3)).
+utente(4,    'Maria', 73, 'Guimaraes' ).
+perfeito(utente(4)).
+utente(5,    'Joana',  8,     'Porto' ).
+perfeito(utente(5)).
+utente(6, 'Fernando', 49,    'Aveiro' ).
+perfeito(utente(6)).
+utente(7,     'Joao', 29,    'Aveiro' ).
+perfeito(utente(7)).
+utente(8,      'Ana', 40,     'Braga' ).
+perfeito(utente(8)).
+utente(9, 'Catarina', 17,     'Braga' ).
+perfeito(utente(9)).
+-utente(9, 'Catarina', 23, 'Braga' ).
+
 
 utente_Id(9).
 
-% Extensao do predicado servico: IdServ, Descricao, Instituicao, Cidade -> {V,F}
-servico(0,     'Cirurgia',    'Hospital Privado de Braga',     'Braga').
-servico(1, 'Dermatologia',    'Hospital Privado de Braga',     'Braga').
-servico(2,    'Pediatria',    'Hospital Privado de Braga',     'Braga').
-servico(3,  'Pneumologia',            'Hospital de Braga',     'Braga').
-servico(4, 'Reumatologia',            'Hospital de Braga',     'Braga').
-servico(5, 'Dermatologia',        'Hospital de Guimaraes', 'Guimaraes').
-servico(6,    'Pediatria',        'Hospital de Guimaraes', 'Guimaraes').
-servico(7,  'Psiquiatria',        'Hospital de Guimaraes', 'Guimaraes').
-servico(8,  'Cardiologia', 'Hospital da Luz de Guimaraes', 'Guimaraes').
-servico(9, 'Oftalmologia', 'Hospital da Luz de Guimaraes', 'Guimaraes').
-servico(10, 'Cardiologia',           'Hospital de S.Joao',     'Porto').
-servico(11,    'Cirurgia',           'Hospital de S.Joao',     'Porto').
-servico(12,   'Ortopedia',           'Hospital de S.Joao',     'Porto').
-servico(13,   'Pediatria',           'Hospital de S.Joao',     'Porto').
-servico(14, 'Pneumologia',           'Hospital de S.Joao',     'Porto').
+%extensao do predicado prestador: IdPrest, Nome, Especialidade, Instituição -> {V, F ,D}
 
+prestador(0, 'Joao', 'Ortopedia', 'Hospital Privado de Braga').
+prestador(1, 'André', 'Cardio', 'Hospital de Guimaraes').
+%Extensao do predicado cuidado: Id, Data, IdUt, IdPrest, Descriçao, Custo -> {V, F, D}
 
-% Extensao do predicado servico: Data, IdUt, IdServ, Custo, IdMed -> {V,F}
-consulta(  data(1,1,2019), 0, 2,  50, 1).
-consulta(  data(1,2,2019), 0, 1, 100, 0).
-consulta(  data(4,2,2019), 1, 1, 100, 3).
-consulta(  data(4,2,2019), 3, 2, 123, 2).
-consulta(  data(1,3,2019), 2, 0,  30, 3).
-consulta(  data(1,4,2019), 3, 6, 150, 2).
-consulta( data(9,12,2019), 6, 9,  10, 1).
-consulta(data(27,11,2020), 3, 9, 200, 0).
-consulta( data(10,5,2020), 6, 14, 50, 0).
-
-%Extensão do predicado medico: ID, Nome -> {V,F}
-medico(0, 'Dr. Artur').
-medico(1, 'Dr. Eduardo').
-medico(2, 'Dr. Filipe').
-medico(3, 'Dr. Luís').
+cuidado(0, data(12,12,12), 4, 0, 'Protese', 100).
+cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
 
 % Invariantes
-%
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
-+utente(Id, _, _, _, _) :: (
-                         solucoes(Id, utente(Id, _, _, _, _), R),
-                         comprimento(R, 1)
-                        ).
-% Invarainte referencial: idade de cada utente pertence [0, 110]
-+utente(_, _, Idade, _, _) :: (
-                            integer(Idade),
-                            Idade >= 0,
-                            Idade =< 110
-                           ).
++utente(Id, _, _, _) :: (
+                         solucoes(Id, utente(Id, _, _, _), R),
+                         comprimento(R, 1)).
 
-% Invariante estrutural: nao permitir isnserir utente com medico de familia inexistente
-+utente(_,_,_,_, IdMed) :: (
-                            solucoes(IdMed, medico(IdMed,_), L),
-                            comprimento(L,1)
-                           ).
+%Invariante que define existir uma so negação explicita
++(-utente(Id , Nome, Idade, Cidade)) :: (solucoes(Id, -utente(Id , Nome, Idade, Cidade),S),
+                                         comprimento(S,N),
+                                         N==1).
+
+
+%Invariante que define que tem de existir uma e uma so negaçao explicita.
+ +(-cuidado(Id, Data, IdU, IdP, Desc, Cust)) :: 
+                                           (solucoes(Id, -cuidado(Id, Data, IdU, IdP, Desc, Cust), S),
+	                                          comprimento(S, N),
+	                                          N == 1
+                                           ).
+
+%Invariante que define existir uma so negação explicita
++(-prestador(Id, Nome, Espc, Inst)) :: (solucoes(Id, -prestador(Id, Nome, Espc, Inst), S),
+                                        comprimento(S,N),
+                                        N==1).
+
 
 %Invariante estrutural: auto incremetar ID's dos utentes
 +utente_Id(_) :: (solucoes( I, utente_Id(I), R),
                   comprimento(R,1)
                 ).
-
-% Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
-+servico(Id, _, _, _) :: (
-                          solucoes(Id, servico(Id, _, _, _), R),
-                          comprimento(R, 1)
-                         ).
-
-
-% Invariante estrutural: nao permitir a insercao de conhecimento repetido pela Descricao por Instituicao
-+servico(_, Descricao, Instituicao, _) :: (
-                                           solucoes((Descricao, Instituicao), servico(_, Descricao, Instituicao, _), R),
-                                           comprimento(R, 1)
-                                          ).
-
-% Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
-+medico(Id, _) :: (
-                   solucoes(Id, medico(Id, _), R),
-                   comprimento(R, 1)
-                  ).
-
 % Invariante estrutural: nao permitir remover utentes com consultas associadas
--utente(IdUt,_,_,_,_) :: (
-                          solucoes(IdUt, consulta(_,IdUt,_,_,_), R),
-                          comprimento(R,0)
-                         ).
+-utente(Id,_,_,_) :: (nao( cuidado(_,Id,_,_,_) )).
+-utente(IdUt, Nome, Idade, Morada) :-
+                                  nao(utente(IdUt, Nome, Idade, Morada)),
+	                                nao(excecao(utente(IdUt, Nome, Idade, Morada))).
+%Extensao d predicado que define a negaçao forte de um cuidado.
+-cuidado(Id,Data, IdU, IdP, Desc, Cust) :-
+                                      nao(cuidado(Id,Data, IdU, IdP, Desc, Cust)),
+	                                    nao(excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust))).
 
-%Invariante estrutural: nao permitir remover medicos com consultas associadas
--medico(Id, _) :: (
-                   solucoes(Id, utente(_,_,_,_,Id), R),
-                   comprimento(R,0)
-                  ).
-
-
-%Invariante estrutural: nao permitir adicionar consultas com Id de utente inexistente
-+consulta(_, IdUt, _, _, _) :: (
-                                solucoes(IdUt, (utente(IdUt,_,_,_,_)), L),
-                                comprimento(L,1)
-                               ).
-
-%Invariante estrutural: nao permitir adicionar consultas com Id de servico inexistente
-+consulta(_, IdServ, _, _, _) :: (
-                                  solucoes( IdServ, (servico(IdServ,_,_,_)), L),
-                                  comprimento(L,1)
-                                 ).
-
-%Invariante Estrutural: nao permitir adicionar consultas com Id de medico inexistente
-+consulta(_, _, _, _, IdMed) :: (
-                                 solucoes( IdMed, (medico(IdMed,_)), L),
-                                 comprimento(L,1)
-                                ).
-
--servico(Id, _, _,_) :: (
-                         solucoes(Id, consulta(_,_,Id,_,_), R),
-                         comprimento(R,0)
-                        ).
+%Extensao do predicado que define a negação forte de prestador.
+-prestador(Id, Nome, Espc, Inst) :- nao(prestador(Id, Nome, Espc, Inst)),
+                                    nao(excecao(prestador(Id, Nome, Espc, Inst))).
 
 
-% Predicados
-%
-% Extensao do predicado add_utente: IdUt, Nome, Idade, Cidade, IdMed -> {V,F}
-add_utente(Id, Nome, Idade, Cidade, IdMed) :- evolucao(utente(Id, Nome, Idade, Cidade, IdMed)).
+%Invariante que nao permite adicionar conhecimento imperfeito na presença de perfeito
++utente(Id,_,_,_) :~: (nao(perfeito(utente(Id)))).
 
-add_utente_a(Nome, Idade, Cidade, IdMed) :- utente_Id(X), involucao(utente_Id(X)),
-                                            Y is X + 1,
-                                            evolucao(utente(Y,
-                                                            Nome,
-                                                            Idade,
-                                                            Cidade,
-                                                            IdMed)
-                                                    ),
-                                            evolucao(utente_Id(Y
-                                          )).
+%Conhecimento incerto.
+cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
+excecao(cuidado(Id,Data, IdU, IdP, Desc, Cust)) :-
+                                                 cuidado(Data, IdUt, IdServ, Desc, nulo1).
+                                               
+%Conhecimento impreciso
+excecao(utente(24, 'Antonio', 32, 'Porto')).
+excecao(utente(24, 'Antonio', 32, 'Matosinhos')).
+impreciso(utente(24)). 
 
-% Extensao do predicado remove_utente: IdUt -> {V,F}
-remove_utente(Id) :- involucao(utente(Id, _, _, _,_)).
+%Conhecimento Interdito
+cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
+excecao(cuidado(Id, Data, IdUt, IdServ, Desc, Custo)) :-
+                                                       cuidado(Id, Data, nulo2, IdServ, Custo, IdPro).
+nulo(nulo2).
++cuidado(Id, Data, IdUt, IdServ, Desc, Custo) :: (
+    solucoes(IdUtVar, (cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123)), nao(nulo(IdUtVar)), S),
+    comprimento(S,0)
+).
+  
+ % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
 
-%Extensão do predicado add_medico: IdMed, Nome -> {V,F}
-add_medico(IdMed, Nome) :- evolucao(medico(IdMed, Nome)).
+evolucao_perfeito(utente(Id, N, I, M)) :-
+	solucoes(Inv, +utente(Id, N, I, M)::Inv, LInv),
+  %remover_impreciso(utente(IdUt,Nome,Idade,Morada)),
+	inserir(utente(Id, N, I, M)),
+  testa(LInv),
+  inserir(perfeito(utente(Id))).
 
-%Extensão do predicado add_servico: Id, Descricao, Instituicao, cidade -> {V,F}
-add_servico(Id, D, I, C) :- evolucao(servico(Id, D, I, C)).
+evolucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+	solucoes(Inv, +(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
+	testa(LInv),
+  %	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
+	inserir((-utente(IdUt,Nome,Idade,Morada))),
+  inserir(perfeito(utente(IdUt))).
 
-%Extensao do rpedicado remove_servico: Id -> {V,F}
-remove_servico(Id) :- involucao(servico(Id,_,_,_)).
+involucao_perfeito(utente(IdUt, Nome, Idade, Morada)) :-
+	utente(IdUt, Nome, Idade, Morada),
+	solucoes(Inv, -utente(IdUt,Nome,Idade,Morada)::Inv, LInv),
+	testa(LInv),
+	remover(utente(IdUt, Nome, Idade, Morada)),
+  remover(perfeito(utente(IdUt))).
 
-%Extensão do predicado remove_medico: IdMed -> {V,F}
-remove_medico(IdMed) :- involucao(medico(IdMed,_)).
+involucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
+	utente(IdUt, Nome, Idade, Morada),
+	solucoes(Inv, -(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
+	testa(LInv),
+	remover(utente(IdUt, Nome, Idade, Morada)),
+  remover(perfeito(utente(IdUt))).
 
-%Extensao do predicado remove_consulta Id -> {V,F}
-remove_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
-                                                  involucao( consulta(data(D,M,A),
-                                                                     IdUt,
-                                                                     IdServ,
-                                                                     Custo,
-                                                                     IdMed)
-                                                          ).
+%Inserir Exceções
+insere_excecoes([]).
+insere_excecoes([utente(IdUt, Nome, Idade, Morada)|Es]) :-
+	inserir(excecao(utente(IdUt, Nome, Idade, Morada))),	
+	inserir(impreciso(utente(IdUt))),
+	insere_excecoes(Es).
 
-
-
-%Extensao do predicado add_consulta: Data(D,M,A), IdUt, IdServ, Custo, IdMed -> {V,F}
-add_consulta((D,M,A), IdUt, IdServ, Custo, IdMed) :-
-                                                  evolucao( consulta(data(D,M,A),
-                                                                     IdUt,
-                                                                     IdServ,
-                                                                     Custo,
-                                                                     IdMed)
-                                                          ).
-
-%Extensão do predicado utente_id: IdUt, R -> {V,F}
-utente_id(IdUt, R) :- solucoes((IdUt, Nome, Idade, Cidade, (IdMed, Nmed)),
-                                (utente(IdUt,Nome, Idade, Cidade, IdMed),
-                                 medico(IdMed, Nmed)), R).
-
-%extensao do predicado utente_nome: Nome, R -> {V,F}
-utente_nome(Nome, R) :- solucoes((IdUt,Nome), utente(IdUt,Nome,_,_,_), R).
-
-utente_idade(Idade, R) :- solucoes((Id, Nome), utente(Id, Nome, Idade, _, _), R).
-
-utente_cidade(Cidade, R) :- solucoes((Id, Nome), utente(Id, Nome, _, Cidade, _), R).
-
-utente_servico(Servico, R) :- solucoes((Id, Nome), (consulta(_,Id,IdServ,_,_), servico(IdServ, Servico, _,_), utente(Id, Nome,_,_,_)), R0),
-unicos(R0, R).
-
-utente_instituicao(Instituicao, R) :- solucoes((IdU, Nome), (servico(IdServ, _, Instituicao,_), consulta(_, IdU,IdServ,_,_), utente(IdU, Nome,_,_,_)), R0),
-unicos(R0, R).
-
-servico_id(Id, R) :- solucoes((Id, Descricao, Instituicao, Cidade), servico(Id, Descricao, Instituicao, Cidade), R).
-
-servico_descricao(Descricao, R) :- solucoes((Id, Descricao, Cidade), servico(Id, Descricao, _, Cidade), R).
-
-consulta_data((D, M, A), R) :- solucoes((NomeU, NomeS, Custo), (consulta(data(D, M, A), IdU, IdS, Custo), utente(IdU, NomeU, _, _, _), servico(IdS, NomeS, _, _)), R).
-
-consulta_utente(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, Id, IdS, Custo), utente(Id, NomeU, _, _, _), servico(IdS, NomeS, _, _)), R).
-
-consulta_servico(Id, R) :- solucoes((Data, NomeU, NomeS, Custo), (consulta(Data, IdU, Id, Custo), utente(IdU, NomeU, _, _, _), servico(Id, NomeS, _, _)), R).
+%Remover exceções
+remove_excecoes([]).
+remove_excecoes([utente(IdUt,Nome,Idade,Morada)|Ps]) :-
+	remover(excecao(utente(IdUt, Nome, Idade, Morada))),
+	remover(impreciso(utente(IdUt))),
+	remove_excecoes(Ps).
 
 
-% Extensao do predicado instituicoes: R -> {V,F}
-instituicoes(R) :-
-                 solucoes(I, servico(_, _, I, _), L),
-                 unicos(L, R).
+%Evolução do conhecimento incerto da idade de um utente
+evolucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :- 
+	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv2),
+	inserir((excecao(utente(Id,N,_,M)) :-
+	       utente(Id,N,Idade,M))),
+	inserir(utente(IdUt, Nome, Idade, Morada)),
+	testa(LInv2).
 
-% Extensao do predicado instituicoes_cidade: Cidade, R -> {V,F}
-instituicoes_cidade(Cidade, R) :-
-                                solucoes(I, servico(_, _, I, Cidade), L),
-                                unicos(L, R).
+%Evolução do conhecimento incerto do custo de um cuidado
+evolucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :- 
+	solucoes(Inv, +cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)::Inv, LInv2),
+	inserir((excecao(cuidado(I, D, IU, IP, D, _)) :-
+	       cuidado(I, D, IU, IP, D, Custo))),
+	inserir(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)),
+	testa(LInv2).
 
-% Extensao do predicado instituicoes_servico: Servico, R -> {V,F}
-instituicoes_servico(Servico, R) :-
-                                  solucoes(I, servico(_, Servico, I, _), L),
-                                  unicos(L, R).
+%Involução incerto idade utente
+involucao_incerto_idade(utente(IdUt, Nome, Idade, Morada)) :-
+	utente(IdUt, Nome,Idade,Morada),
+	incerto_idade(utente(IdUt, _)),
+	solucoes(Inv, -utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
+	remover((excecao(utente(Id,N,_,M)) :-
+		utente(Id,N,Idade,M))),
+	remover(utente(IdUt, _, _ ,_)),
+	testa(LInv).
 
-% Extensao do predicado instituicoes_id: Id, R -> {V,F}
-instituicoes_id(Id, R) :- solucoes((I, Id), servico(Id, _, I, _), [(R, _)]).
+%Involução incerto custo de um cuidado
+involucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
+	cuidado(Id, Data, IdUt, IdPrest, Desc, Custo),
+	incerto_custo(Id, _),
+	solucoes(Inv, -cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)::Inv, LInv),
+	remover((excecao(cuidado(I, D, IU, IP, D, _)) :-
+	       cuidado(I, D, IU, IP, D, Custo))),
+	remover(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)),
+	testa(LInv).
 
-% Extensao do predicado servicos_instituicao: Instituicao, R -> {V,F}
-servicos_instituicao(Instituicao, R) :-
-                                     solucoes(S, servico(_, S, Instituicao, _), L),
-                                     unicos(L, R).
+%Evolução de conhecimento impreciso
+evolucao_impreciso([utente(IdUt, Nome, Idade, Morada)|T]) :-
+	T \= [],
+	utente_igual(T, IdUt),
+  %remove_incerto(utente(IdUt, Nome, Idade, Morada)),
+  inserir(impreciso(IdUt)),
+	insere_excecoes([utente(IdUt, Nome, Idade, Morada)|T]),
+	testaInvs([utente(IdUt, Nome, Idade, Morada)|T]).
 
-% Extensao do predicado servicos_cidade: Cidade, R -> {V,F}
-servicos_cidade(Cidade, R) :-
-                            solucoes(S, servico( _, S, _, Cidade), L),
-                            unicos(L, R).
+testaInvs([]).
+testaInvs([P|Ps]) :-
+	solucoes(Inv, +P::Inv, LInv1),
+	testa(LInv1),	 
+	testaInvs(Ps).
 
-% Extensao do predicado custo_utente: Id, R -> {V,F}
-custo_utente(Id, R) :-
-                     solucoes(L, consulta(_, Id, _, L,_), C),
-                     lista_soma(C, R).
+utente_igual([], _).
+utente_igual([utente(Id1, _, _, _) | T], Id2) :-
+	Id1 == Id2,
+	utente_igual(T, Id2).
 
-% Extensao do predicado custo_servico: Id, R -> {V,F}
-custo_servico(Id, R) :-
-                      solucoes(L, consulta(_, _, Id, L, _), C),
-                      lista_soma(C, R).
+remove_incerto(utente(IdUt,_,_,_)) :-
+	incerto_idade(utente(IdUt,I)),
+	remover((excecao(utente(Id,N,_,M)) :-
+		utente(Id,N,I,M))),
+	remover(utente(IdUt, _, _ ,_)),
+  remover(incerto_idade(utente(IdUt, _))).
 
-% Extensao do predicado custo_data: Id, R -> {V,F}
-custo_data((D, M, A), R) :-
-                          solucoes(L, consulta(data(D, M, A), _, _, L, _), C),
-                          lista_soma(C, R).
+%Involução do conhecimento impreciso
+involucao_impreciso([utente(Id,Nome,Idade,Morada) | T]) :-
+    procura_excecao([utente(Id,Nome,Idade,Morada) | T]),
+    utente_igual(T, Id),
+    remove_excecoes([utente(Id,Nome,Idade,Morada) | T]),
+    testaInvolInvs([utente(Id,Nome,Idade,Morada) | T]).
 
-% Extensao do predicado custo_instituicao: Id, R -> {V,F}
-custo_instituicao(Inst, R) :-
-                            solucoes(L, (servico(Id,_,Inst,_),
-                                         consulta(_, _, Id, L, _)), C),
-                            lista_soma(C, R).
+testaInvolInvs([]).
+testaInvolInvs([P|Ps]) :- 
+    solucoes(Inv, -P::Inv, LInv),
+    testa(LInv),
+    testaInvolInvs(Ps).
 
-%Extensao do predicado custo_medico: IdMed, R -> {V,F}
-custo_medico(IdMed, R) :-
-                        solucoes(L, consulta(_,_,_,L,IdMed), C),
-                        lista_soma(C,R).
+procura_excecao([]).
+procura_excecao([T|Ts]) :-
+    excecao(T), procura_excecao(Ts).
 
-%Extensao do predicado custo_medio: R -> {V,f}
-custo_medio(R) :- solucoes(L, consulta(_,_,_,L,_), C),
-                  media(C,R).
+%Evolucao do conhecimento interdito sobre a idade de um utente
+evolucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
+	solucoes(Inv, +utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
+  solucoes(Inv, +utente(IdUt, Nome, Idade, Morada):~:Inv, LInv1),
+	assert(nulo(Idade)),
+	inserir((excecao(utente(Id,N,I,M)) :-
+	       utente(Id,N,Idade,M))),
+	inserir((+utente(Id,N,I,M) :: (
+				       solucoes(Id,(utente(Id,_,Idade,_), nulo(Idade)),S),
+				       comprimento(S,0)
+				     ))),
+	inserir(utente(IdUt, Nome,Idade,Morada)),
+	testa(LInv),
+  testa(LInv1).
 
-%Extensao do predicado consulta_medico: IdMed, R -> {V,F}
-consulta_medico(IdMed, R) :-
-                           solucoes((Data,Esp,Hosp), (consulta(Data,_,IdServ,_,IdMed),
-                                        servico(IdServ,Esp,Hosp,_)), R).
+% Involucao do conhecimento interdito relativo a idade de um utente
+involucao_interdito_idade(utente(IdUt, Nome, Idade, Morada)) :-
+	utente(IdUt, Nome, Idade, Morada),
+	nulo(Idade),
+	solucoes(Inv, -utente(IdUt, Nome, Idade, Morada)::Inv, LInv),
+	remover(nulo(Idade)),
+	remover((excecao(utente(Id,N,I,M)) :-
+	       utente(Id,N,Idade,M))),
+	remover((+utente(Id,N,I,M) :: (
+				       solucoes(Id,(utente(Id,_,Idade,_), nulo(Idade)),S),
+				       comprimento(S,0)
+				     ))),
+	remover(utente(IdUt, Nome,Idade,Morada)),
+	testa(LInv).
 
-%Extensao do predicado media_idade_utentes: R -> {V,F}
-media_idade_utentes(R) :- (
-                            solucoes(Idade, utente(_,_,Idade,_,_), L),
-                            media(L,R)
-                          ).
+%Predicado para saber a idade de um utente.
+idade_utente(Id, I) :- utente(Id, _, I, _).
+-idade_utente(Id, I) :- nao(utente(Id, _, I, _)), nao(excecao(utente(Id, _, I, _))).
 
-%Extensao do predicado medico_familia: IdUt, R -> {V,F}
-medico_familia(IdUt, R) :- (
-                            solucoes((IdMed, Nome),
-                                     (utente(IdUt,_,_,_,IdMed),
-                                      medico(IdMed, Nome)),
-                                      R)
-                           ).
 
-%extensao do predicado consulta_med_utente: IdUt, R -> {V,F}
-consulta_med_utente(IdUt, R) :-
-                              solucoes((Data, IdMed, Nome),
-                                       (consulta(Data,IdUt,_,_,IdMed),
-                                       medico(IdMed,Nome)),
-                                       R
-                                ).
-
-%extensao do predicado consulta_med_utente_nf: IdUt, R -> {V,F}
-consulta_med_utente_nf(IdUt, R) :-
-                                 medico_familia(IdUt, [(IdMedM, _)]),
-                                 solucoes((Data, IdMed, Nome),
-                                          (consulta(Data,IdUt,_,_,IdMed),
-                                           medico(IdMed,Nome),
-                                           IdMed \= IdMedM),
-                                          R
-                                   ).
-%extensao do predicado melhor_instituicao: R -> {V,F}
-melhor_instituicao(R) :-
-                       solucoes(Nome, (consulta(_,_,IdServ,_,_), servico(IdServ,_,Nome,_)), L), maxRepeated(L, R).
 % Meta predicados
-%
 % Extensao do predicado nao: Q -> {V,F}
 nao(Q) :- Q, !, fail.
 nao(_).
