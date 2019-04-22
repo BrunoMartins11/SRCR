@@ -293,8 +293,7 @@ evolucao_impreciso([utente(IdUt, Nome, Idade, Morada)|T]) :-
 	T \= [],
 	utente_igual(T, IdUt),
   inserir(impreciso(IdUt)),
-	insere_excecoes([utente(IdUt, Nome, Idade, Morada)|T]),
-	testaInvs([utente(IdUt, Nome, Idade, Morada)|T]).
+	insere_excecoes([utente(IdUt, Nome, Idade, Morada)|T]).
 
 testaInvs([]).
 testaInvs([P|Ps]) :-
@@ -307,12 +306,6 @@ utente_igual([utente(Id1, _, _, _) | T], Id2) :-
 	Id1 == Id2,
 	utente_igual(T, Id2).
 
-remove_incerto(utente(IdUt,_,_,_)) :-
-	incerto_idade(utente(IdUt,I)),
-	remover((excecao(utente(Id,N,_,M)) :-
-		utente(Id,N,I,M))),
-	remover(utente(IdUt, _, _ ,_)),
-  remover(incerto_idade(utente(IdUt, _))).
 
 %Involução do conhecimento impreciso
 involucao_impreciso([utente(Id,Nome,Idade,Morada) | T]) :-
