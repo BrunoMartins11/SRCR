@@ -1,4 +1,7 @@
-% Modulo auxiliar
+:- set_prolog_flag(discontiguous_warnings, off).
+:- set_prolog_flag(single_var_warnings, off).
+:- set_prolog_flag(unknown, fail).% Modulo auxiliar
+
 :- consult('aux.pl').
 % Definições iniciais
 :- op(900, xfy, '::').
@@ -107,12 +110,40 @@ utente_Id(9).
 
 %extensao do predicado prestador: IdPrest, Nome, Especialidade, Instituição -> {V, F ,D}
 
-prestador(0, 'Joao', 'Ortopedia', 'Hospital Privado de Braga').
-prestador(1, 'André', 'Cardio', 'Hospital de Guimaraes').
+prestador(0, 'Catarina', 'Clinica Geral', 'Centro de Saúde de Urgezes').
+prestador(1, 'Ines', 'Cardio', 'Hospital de Guimarães').
+prestador(2, 'Ines', 'Cardio', 'Centro de Saúde de Urgezes').
+prestador(3, 'Mario', 'Urologia', 'Hospital Nossa Senhora da Oliveira').
+prestador(4, 'Filipe', 'Clinica Geral', 'Hospital Nossa Senhora da Oliveira').
+prestador(5, 'Filipe', 'Maternidade', 'Centro de Saúde de Urgezes').
+prestador(6, 'Ines', 'Psicologia', 'Centro de Saúde S.Nicolau').
+prestador(7, 'Alexandre', 'Clinica Geral', 'Centro de Saúde de Urgezes').
+prestador(8, 'Bruno', 'Otorrinologia', 'Hospital Nossa Senhora da Oliveira').
+prestador(9, 'Mario', 'Pediatria', 'Hospital Nossa Senhora da Oliveira').
+prestador(10, 'Bruno', 'Genecologia', 'Hospital Nossa Senhora da Oliveira').
+prestador(11, 'Eduardo', 'Maternidade', 'Centro de Saúde S.Nicolau').
+prestador(12, 'Eduardo', 'Psiquiatria', 'Hospital de Guimarães').
+prestador(13, 'Bráulio', 'Maternidade', 'Hospital de Guimarães').
+prestador(14, 'Alexandre', 'Ortopedia', 'Centro de Saúde S.Nicolau').
+prestador(15, 'Rafael', 'Clinica Geral', 'Hospital de Braga').
 %Extensao do predicado cuidado: Id, Data, IdUt, IdPrest, Descriçao, Custo -> {V, F, D}
 
-cuidado(0, data(12,12,12), 4, 0, 'Protese', 100).
-cuidado(1, data(11,11,11), 7, 1, 'Pacemaker', 200).
+cuidado(0, data(15, 3, 0), 8, 16, 'Pacemaker', 22).
+cuidado(1,data(4,4,2018), 4, 6,'Operacao' , nulo1).
+cuidado(2, data(20, 12, 5), 1, 25, 'Vacina', 26).
+cuidado(3, data(1, 3, 4), 9, 32, 'Problema Respiratorio', 8).
+cuidado(4, data(23,2,2018), nulo2, 'Consulta Rotina', 123).
+cuidado(5, data(28, 7, 4), 5, 4, 'Pacemaker', 100).
+cuidado(6, data(29, 4, 14), 3, 24, 'Colonoscopia', 80).
+cuidado(7, data(7, 3, 1), 7, 12, 'Vacina', 15).
+cuidado(8, data(3, 3, 11), 12, 38, 'Vacina', 20).
+cuidado(9, data(3, 3, 10), 8, 35, 'Pacemaker', 31).
+cuidado(10, data(3, 11, 11), 9, 28, 'Vacina', 87).
+cuidado(11, data(24, 10, 18), 6, 18, 'Colonoscopia', 58).
+cuidado(12, data(6, 5, 13), 4, 32, 'Gravidez', 21).
+cuidado(13, data(12, 3, 8), 5, 25, 'Gravidez', 49).
+cuidado(14, data(28, 2, 8), 11, 11, 'Vacina', 103).
+cuidado(15, data(1, 2, 1), 11, 40, 'Pacemaker', 83).
 
 % Invariantes
 % Invariante estrutural: nao permitir a insercao de conhecimento repetido pelo Id
@@ -180,10 +211,8 @@ nulo(nulo2).
 ).
  %
  % Evolucao de conhecimento perfeito que remove conhecimento impreciso/incerto
-
 evolucao_perfeito(utente(Id, N, I, M)) :-
 	solucoes(Inv, +utente(Id, N, I, M)::Inv, LInv),
-  %remover_impreciso(utente(IdUt,Nome,Idade,Morada)),
 	inserir(utente(Id, N, I, M)),
   testa(LInv),
   inserir(perfeito(utente(Id))).
@@ -191,7 +220,6 @@ evolucao_perfeito(utente(Id, N, I, M)) :-
 evolucao_perfeito((-utente(IdUt, Nome, Idade, Morada))) :-
 	solucoes(Inv, +(-utente(IdUt,Nome,Idade,Morada))::Inv, LInv),
 	testa(LInv),
-  %	removerImpreciso(utente(IdUt,Nome,Idade,Morada)),
 	inserir((-utente(IdUt,Nome,Idade,Morada))),
   inserir(perfeito(utente(IdUt))).
 
@@ -264,7 +292,6 @@ involucao_incerto_custo(cuidado(Id, Data, IdUt, IdPrest, Desc, Custo)) :-
 evolucao_impreciso([utente(IdUt, Nome, Idade, Morada)|T]) :-
 	T \= [],
 	utente_igual(T, IdUt),
-  %remove_incerto(utente(IdUt, Nome, Idade, Morada)),
   inserir(impreciso(IdUt)),
 	insere_excecoes([utente(IdUt, Nome, Idade, Morada)|T]),
 	testaInvs([utente(IdUt, Nome, Idade, Morada)|T]).
